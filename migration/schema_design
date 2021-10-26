@@ -1,0 +1,62 @@
+// Open/Edit with dbdiagram.io
+
+
+Enum ContentTypes {
+  audio
+  video
+  text
+}
+
+// Creating tables
+Table users as U {
+  id uuid [pk]
+  created_at timestamp
+  email varchar
+  token varchar [unique]
+  Indexes {
+    email [unique]
+  }
+}
+
+Table profiles as P {
+  user_id uuid [ref: - users.id]
+  full_name varchar
+  stars int [default: 0]
+  Indexes {
+    stars
+  }
+}
+
+Table questions as Q {
+  id int [pk, increment]
+  asked_by uuid [ref: > users.id]
+  content text [not null]
+  closed boolean [default: false]
+  created_at timestamp [default: `now()`]
+}
+
+Table answers as A {
+  question id [ref: > questions.id]
+  answered_by uuid [ref: > users.id]
+  content_type ContentTypes
+  content_value text [not null]
+  voted int [default: 0]
+  Indexes {
+    (question, answered_by) [pk]
+  }
+}
+
+Table tags as T {
+  id int [pk, increment]
+  name varchar [unique, not null]
+}
+
+Table question_tag {
+  tag int [ref: > tags.id]
+  question int [ref: > questions.id]
+  Indexes {
+    (tag, question) [pk]
+    question
+    tag
+  }
+}

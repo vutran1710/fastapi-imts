@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  pg:
+    container_name: imts-psql
+    image: bitnami/postgresql:13
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRESQL_USERNAME=imts
+      - POSTGRESQL_PASSWORD=abc123
+      - POSTGRESQL_DATABASE=imts-psql
+    volumes:
+      - ./.persist/psql:/bitnami/postgresql
+
+  redis:
+    container_name: imts-redis
+    image: bitnami/redis:6.0
+    ports:
+      - 6379:6379
+    environment:
+      - REDIS_PASSWORD=abc123
+    volumes:
+      - ./.persist/redis:/bitnami/redis/data
+
+  minio:
+    container_name: imts-minio
+    image: minio/minio:latest
+    command: "minio server /data --console-address \":9001\""
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      - MINIO_ROOT_USER=imts-minio-key
+      - MINIO_ROOT_PASSWORD=imts-minio-secret
+    volumes:
+      - ./.persist/minio:/data
+
+networks:
+  default:
+    external: true
+    name: image-tagged-system-network

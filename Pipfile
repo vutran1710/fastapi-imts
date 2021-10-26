@@ -1,0 +1,39 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+asyncpg = "*"
+python-dotenv = "*"
+aioredis = "*"
+fastapi = "*"
+pydantic = "*"
+uvicorn = "*"
+logzero = "*"
+httpx = "*"
+minio = "*"
+python-jose = "*"
+python-multipart = "*"
+google-api-python-client = "*"
+passlib = "*"
+
+[dev-packages]
+black = "*"
+flake8 = "*"
+radon = "*"
+isort = "*"
+mypy = "*"
+
+[requires]
+python_version = "3.9"
+
+[scripts]
+dev = "uvicorn main:app --reload --reload-exclude=.persist/*"
+format = "black ."
+flake = "flake8 ."
+type = "mypy ."
+sort = "isort ."
+
+[pipenv]
+allow_prereleases = true
