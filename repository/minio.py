@@ -1,4 +1,5 @@
-from tempfile import SpooledTemporaryFile, TemporaryFile
+from tempfile import SpooledTemporaryFile
+from typing import IO, Any, Union
 
 from logzero import logger as log
 from settings import Settings
@@ -35,13 +36,15 @@ class Minio:
 
         return cls(client, st.STORAGE_BUCKET)
 
-    def save_image(self, filename: str, file: SpooledTemporaryFile) -> str:
+    def save_image(
+        self, filename: str, file_obj: Union[SpooledTemporaryFile[bytes], IO[Any]]
+    ) -> str:
         _, extension = filename.split(".")
         content_type = f"image/{extension}"
         result = self._c.put_object(
             self._bucket,
             filename,
-            file,
+            file_obj,
             -1,
             content_type=content_type,
             part_size=5242880,

@@ -26,7 +26,7 @@ class Q:
         "SELECT token FROM users WHERE email = $1 AND expire_at > current_timestamp"
     )
 
-    INSERT_NEW_IMAGE = "INSERT INTO images (image_key) VALUES ($1)"
+    INSERT_NEW_IMAGE = "INSERT INTO images (image_key, uploaded_by) VALUES ($1, $2)"
 
     async def prepare(self, conn: Connection):
         for a in dir(self):
@@ -58,7 +58,7 @@ class Postgres:
         """Register new user to database using email & password"""
         try:
             args = (uuid4(), email, pwd)
-            records: Records = await self.q.REGISTER_NEW_USER_APP(*args)
+            records: Records = await self.q.REGISTER_NEW_USER_APP(*args)  # type: ignore
             return User(**records[0])
         except UniqueViolationError:
             return None
@@ -69,9 +69,9 @@ class Postgres:
             raise ValueError("At least email or user_id must be specified")
 
         records: Records = await (
-            self.q.FIND_USER_BY_EMAIL(email)
+            self.q.FIND_USER_BY_EMAIL(email)  # type: ignore
             if email
-            else self.q.FIND_USER_BY_ID(user_id)
+            else self.q.FIND_USER_BY_ID(user_id)  # type: ignore
         )
 
         return User(**records[0]) if records else None
@@ -91,5 +91,5 @@ class Postgres:
         records: Records = await self.q.UPDATE_USER_TOKEN(token, time, email)  # type: ignore
         return User(**records[0])
 
-    async def insert_new_image(self, image_key: str):
-        await self.q.INSERT_NEW_IMAGE(image_key)  # type: ignore
+    async def insert_new_image(self, image_key: str, uploader: str):
+        await self.q.INSERT_NEW_IMAGE(image_key, uploader)  # type: ignore

@@ -8,3 +8,4 @@ class AuthException:
     INVALID_SOCIAL_TOKEN = HTTPException(400, "User's social token is invalid")
 
     FAIL_GOOGLE_AUTH = HTTPException(400)
+    FAIL_FACEBOOK_AUTH = HTTPException(400)

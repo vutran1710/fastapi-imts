@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
 from libs.dependencies import jwt_guard
-from libs.utils import fix_image_name, validate_image_file
+from libs.utils import fix_image_name, raise_if_falsy, validate_image_file
 from model.auth import AuthenticatedUser
 from repository import Minio, Postgres, get_minio, get_pg
 
@@ -22,10 +22,8 @@ async def upload_image(
     """
     valid = validate_image_file(image.filename)
 
-    if not valid:
-        raise HTTPException(400, "Only images allowed")
+    raise_if_falsy(HTTPException(400, "Only images allowed"), valid)
 
     filename = fix_image_name(image.filename)
-    obj_name = minio.save_image(filename, image.file)
-
-    await pg.insert_new_image(obj_name, user)
+    obj_name = minio.save_image(filename, filename.file)
+    await pg.insert_new_image(obj_name, user.user_id)

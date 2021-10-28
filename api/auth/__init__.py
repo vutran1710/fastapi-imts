@@ -1,11 +1,14 @@
 from fastapi import APIRouter, Depends
-from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from libs.dependencies import create_auth_response, crypt, jwt_guard
 from libs.exceptions import AuthException
 from libs.utils import initialize_model, validate_google_user
-from model.auth import (AuthenticatedUser, FBLoginData, GoogleLoginData,
-                        SimpleUserCredential)
+from model.auth import (
+    AuthenticatedUser,
+    FBLoginData,
+    GoogleLoginData,
+    SimpleUserCredential,
+)
 from model.http import AuthResponse
 from repository import Http, Postgres, get_http, get_pg
 
@@ -58,7 +61,7 @@ async def refresh_token(
     if user.provider != "app":
         user_info = await pg.get_user(email=user.email)
 
-        if not user_info.token:
+        if not user_info or not user_info.token:
             raise AuthException.INVALID_SOCIAL_TOKEN
 
     return create_auth_response(user)
@@ -69,13 +72,15 @@ async def auth_with_google(
     payload: GoogleLoginData,
     pg: Postgres = Depends(get_pg),
 ):
-    valid_pwd = validate_google_user(payload.id_token, payload.email)
-    email, id_token, expire_at = payload.email, payload.id_token, payload.expire_at
+    valid = validate_google_user(payload.id_token, payload.email)
 
-    if not valid_pwd:
+    if not valid:
         raise AuthException.FAIL_GOOGLE_AUTH
 
-    user = await pg.insert_or_update_user(email, id_token, expire_at, "google")
+    user = await pg.insert_or_update_user(
+        payload.email, payload.id_token, payload.expire_at, "google"
+    )
+
     return create_auth_response(user)
 
 
@@ -88,22 +93,10 @@ async def auth_with_facebook(
     info = await http.authenticate_facebook_user(payload)
 
     if not info:
-        raise HTTPException(400)
+        raise AuthException.FAIL_FACEBOOK_AUTH
 
-    email, access_token, expire_at = info.email, payload.access_token, payload.expire_at
+    user = await pg.insert_or_update_user(
+        info.email, payload.access_token, payload.expire_at, "facebook"
+    )
 
-    await pg.insert_user_if_needed(email, access_token, expire_at, "facebook")
-
-    resp = create_auth_response(info.name, "facebook")
-    return resp
-
-
-@router.get("/logout")
-async def social_logout(
-    user: AuthenticatedUser = Depends(jwt_guard),
-    pg: Postgres = Depends(get_pg),
-):
-    if user.provider != "app":
-        await pg.remove_user_token(user.email)
-
-    return "OK"
+    return create_auth_response(user)

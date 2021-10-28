@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Type, TypeVar
+from typing import Any, Callable, Optional, Type, TypeVar
 from uuid import uuid1
 
 from google.auth.transport import requests
@@ -23,12 +23,19 @@ def trying(on_exception=None):
     return wrapped_
 
 
+def raise_if_falsy(exception: Exception, value: Any):
+    if not value:
+        raise exception
+
+    return value
+
+
 @trying()
 def initialize_model(model: Type[T], **kwargs) -> Optional[T]:
     """Trying to intialize a pydantic-model instance
     Return None on failure instead of raising error
     """
-    return model(**kwargs)
+    return model(**kwargs)  # type: ignore
 
 
 @trying(False)

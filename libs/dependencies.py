@@ -33,7 +33,7 @@ async def jwt_guard(token: str = Depends(scheme)):
 
 def create_auth_response(user: Union[User, AuthenticatedUser]) -> AuthResponse:
     global jwt
-    user_id = str(user.get("user_id") or user.get("id"))
+    user_id = str(getattr(user, "user_id") or getattr(user, "id"))
     payload = {"user_id": user_id, "email": user.email, "provider": user.provider}
     token, expire_at = jwt.encode(payload, minutes=60)
     return AuthResponse(access_token=token, expire_at=expire_at, **payload)
