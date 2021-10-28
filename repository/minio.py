@@ -1,12 +1,15 @@
-from logzero import logger as log
-from minio import Minio as MinioSDK
+from tempfile import SpooledTemporaryFile, TemporaryFile
 
+from logzero import logger as log
 from settings import Settings
+
+from minio import Minio as MinioSDK
 
 
 class Minio:
-    def __init__(self, client):
+    def __init__(self, client: MinioSDK, bucket: str):
         self._c = client
+        self._bucket = bucket
 
     @classmethod
     def init(cls, st: Settings):
@@ -30,4 +33,17 @@ class Minio:
                 st.STORAGE_BUCKET,
             )
 
-        return cls(client)
+        return cls(client, st.STORAGE_BUCKET)
+
+    def save_image(self, filename: str, file: SpooledTemporaryFile) -> str:
+        _, extension = filename.split(".")
+        content_type = f"image/{extension}"
+        result = self._c.put_object(
+            self._bucket,
+            filename,
+            file,
+            -1,
+            content_type=content_type,
+            part_size=5242880,
+        )
+        return result.object_name

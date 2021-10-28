@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, validator
 
 from .enums import Provider
 
@@ -21,5 +21,17 @@ class FBLoginData(BaseModel):
 
 class AuthenticatedUser(BaseModel):
     name: Optional[str]
+    user_id: str
     email: str
     provider: Provider
+
+
+class SimpleUserCredential(BaseModel):
+    email: EmailStr
+    password: str
+
+    @validator("password")
+    def password_requirement(cls, pwd: str):
+        if len(pwd) < 8:
+            raise ValueError("Password too short")
+        return pwd

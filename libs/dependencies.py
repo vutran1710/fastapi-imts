@@ -1,11 +1,11 @@
+from typing import Union
+
 from fastapi import Depends
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from google.auth.transport import requests
-from google.oauth2 import id_token
 from model.auth import AuthenticatedUser
-from model.enums import Provider
 from model.http import AuthResponse
+from model.postgres import User
 from passlib.context import CryptContext
 from settings import settings
 
@@ -26,31 +26,14 @@ async def jwt_guard(token: str = Depends(scheme)):
     claim = jwt.decode(token)
 
     if not claim:
-        raise HTTPException(400)
+        raise HTTPException(401)
 
     return AuthenticatedUser(**claim)
 
 
-def create_auth_response(email: str, provider: Provider, **meta_data) -> AuthResponse:
+def create_auth_response(user: Union[User, AuthenticatedUser]) -> AuthResponse:
     global jwt
-    payload = {"email": email, "provider": provider, **meta_data}
-    token, expire_at = jwt.encode(payload, minutes=15)
+    user_id = str(user.get("user_id") or user.get("id"))
+    payload = {"user_id": user_id, "email": user.email, "provider": user.provider}
+    token, expire_at = jwt.encode(payload, minutes=60)
     return AuthResponse(access_token=token, expire_at=expire_at, **payload)
-
-
-def validate_google_user(idtoken: str, email: str) -> bool:
-    try:
-        idinfo = id_token.verify_oauth2_token(
-            idtoken,
-            requests.Request(),
-            settings.GOOGLE_APP_CLIENT_ID,
-        )
-        return idinfo.get("email") == email
-
-    except ValueError:
-        return False
-
-
-def validate_password(pwd: str):
-    if not pwd or len(pwd) < 8:
-        raise HTTPException(400, "Invalid password")

@@ -23,7 +23,8 @@ CREATE TABLE "profiles" (
 CREATE TABLE "images" (
   "id" SERIAL PRIMARY KEY,
   "created_at" timestamp DEFAULT current_timestamp,
-  "url" varchar UNIQUE NOT NULL
+  "image_key" varchar UNIQUE NOT NULL,
+  "uploaded_by" uuid
 );
 
 CREATE TABLE "tags" (
@@ -36,6 +37,8 @@ CREATE TABLE "tagged" (
   "image" int,
   PRIMARY KEY ("tag", "image")
 );
+
+ALTER TABLE "images" ADD FOREIGN KEY ("uploaded_by") REFERENCES "users" ("id");
 
 ALTER TABLE "profiles" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 

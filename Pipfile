@@ -8,7 +8,7 @@ asyncpg = "*"
 python-dotenv = "*"
 aioredis = "*"
 fastapi = "*"
-pydantic = "*"
+pydantic = {extras = ["dotenv", "email"], version = "*"}
 uvicorn = "*"
 logzero = "*"
 httpx = "*"

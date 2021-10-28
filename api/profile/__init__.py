@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from libs import jwt_guard
+from libs.dependencies import jwt_guard
 from model.auth import AuthenticatedUser
 
 router = APIRouter()

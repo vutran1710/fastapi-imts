@@ -30,8 +30,9 @@ class FBUserInfo(BaseModel):
 
 
 class AuthResponse(BaseModel):
+    user_id: str
     email: str
-    provider: Optional[Provider]
+    provider: Provider
     access_token: str
     expire_at: int
     token_type = "bearer"

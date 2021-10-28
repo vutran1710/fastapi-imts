@@ -26,3 +26,15 @@ app.include_router(
     prefix="/v1/profile",
     tags=["Profile"],
 )
+
+app.include_router(
+    api.ImageRouter,
+    prefix="/v1/image",
+    tags=["Image"],
+)
+
+# app.include_router(
+#     api.TagRouter,
+#     prefix="/v1/tag",
+#     tags=["Tags"],
+# )

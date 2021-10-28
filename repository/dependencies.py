@@ -2,12 +2,12 @@ from settings import settings as st
 
 from .http import Http
 from .minio import Minio
-from .postgres import PgRepo
+from .postgres import Postgres
 from .redis import Redis
 
 
 async def get_pg():
-    pg = await PgRepo.init(st)
+    pg = await Postgres.init(st)
     yield pg
 
 

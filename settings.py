@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     PG_PWD: str
     PG_DATABASE: str
     PG_PORT: int = 5678
-    MONGO_CONNECTION_STRING: str
     REDIS_CONNECTION_STRING: str
     STORAGE_HOST: str
     STORAGE_ACCESS_KEY: str
