@@ -1,2 +1,4 @@
 .env*
 .persist/
+.pytest_cache/
+.coverage

@@ -24,6 +24,9 @@ flake8 = "*"
 radon = "*"
 isort = "*"
 mypy = "*"
+pytest = "*"
+pytest-asyncio = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.9"
@@ -34,6 +37,7 @@ format = "black ."
 flake = "flake8 ."
 type = "mypy ."
 sort = "isort ."
+test = "pytest tests -v -s --cov=."
 
 [pipenv]
 allow_prereleases = true

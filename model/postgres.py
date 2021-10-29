@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
@@ -22,3 +22,13 @@ class Image(BaseModel):
     created_at: datetime
     image_key: str
     uploaded_by: UUID
+
+
+class Tag(BaseModel):
+    id: int
+    name: str
+
+
+class TaggedImage(BaseModel):
+    image: Image
+    tags: List[Tag]

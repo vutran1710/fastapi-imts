@@ -24,7 +24,7 @@ CREATE TABLE "images" (
   "id" SERIAL PRIMARY KEY,
   "created_at" timestamp DEFAULT current_timestamp,
   "image_key" varchar UNIQUE NOT NULL,
-  "uploaded_by" uuid
+  "uploaded_by" uuid NULL
 );
 
 CREATE TABLE "tags" (
@@ -38,12 +38,12 @@ CREATE TABLE "tagged" (
   PRIMARY KEY ("tag", "image")
 );
 
-ALTER TABLE "images" ADD FOREIGN KEY ("uploaded_by") REFERENCES "users" ("id");
+ALTER TABLE "images" ADD FOREIGN KEY ("uploaded_by") REFERENCES "users" ("id") ON DELETE SET NULL;
 
 ALTER TABLE "profiles" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "tagged" ADD FOREIGN KEY ("tag") REFERENCES "tags" ("id");
 
-ALTER TABLE "tagged" ADD FOREIGN KEY ("image") REFERENCES "images" ("id");
+ALTER TABLE "tagged" ADD FOREIGN KEY ("image") REFERENCES "images" ("id") ON DELETE CASCADE;
 
 CREATE INDEX ON "tagged" ("image");

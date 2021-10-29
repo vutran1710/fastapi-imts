@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, File, Header, HTTPException, UploadFile
+from typing import List
+
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from libs.dependencies import jwt_guard
 from libs.exceptions import ImageException
 from libs.utils import fix_image_name, raise_if_falsy, validate_image_file
@@ -14,6 +16,7 @@ router = APIRouter()
 async def upload_image(
     user: AuthenticatedUser = Depends(jwt_guard),
     image: UploadFile = File(...),
+    tags: str = Form(None),
     minio: Minio = Depends(get_minio),
     pg: Postgres = Depends(get_pg),
 ):
@@ -27,7 +30,12 @@ async def upload_image(
 
     file_name = fix_image_name(image.filename)
     obj_name = minio.save_image(file_name, image.file)
-    await pg.insert_new_image(obj_name, user.user_id)
+
+    image = await pg.insert_new_image(obj_name, user.user_id)
+
+    if tags:
+        await pg.insert_tagged_image(image, tags.split(","))
+
     return obj_name
 
 

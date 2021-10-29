@@ -3,12 +3,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from libs.dependencies import create_auth_response, crypt, jwt_guard
 from libs.exceptions import AuthException
 from libs.utils import initialize_model, validate_google_user
-from model.auth import (
-    AuthenticatedUser,
-    FBLoginData,
-    GoogleLoginData,
-    SimpleUserCredential,
-)
+from model.auth import (AuthenticatedUser, FBLoginData, GoogleLoginData,
+                        SimpleUserCredential)
 from model.http import AuthResponse
 from repository import Http, Postgres, get_http, get_pg
 
@@ -26,7 +22,7 @@ async def sign_up_with_username_password(
     if not cred:
         raise AuthException.INVALID_CREDENTIAL
 
-    user = await pg.register_new_user(cred.email, crypt.hash(cred.password))
+    user = await pg.save_user(cred.email, crypt.hash(cred.password))
 
     if not user:
         raise AuthException.DUPLICATE_USER
