@@ -1,4 +1,7 @@
-from pydantic import BaseModel
+from datetime import datetime
+from uuid import UUID
+
+from pydantic import AnyHttpUrl, BaseModel
 
 from .enums import Provider
 
@@ -34,3 +37,10 @@ class AuthResponse(BaseModel):
     access_token: str
     expire_at: int
     token_type = "bearer"
+
+
+class GetImageResponse(BaseModel):
+    created_at: datetime
+    image_key: str
+    uploaded_by: UUID
+    url: AnyHttpUrl

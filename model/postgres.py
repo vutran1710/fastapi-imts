@@ -15,3 +15,10 @@ class User(BaseModel):
     expire_at: Optional[datetime]
     created_at: datetime
     provider: Provider
+
+
+class Image(BaseModel):
+    id: int
+    created_at: datetime
+    image_key: str
+    uploaded_by: UUID

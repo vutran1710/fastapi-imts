@@ -1,3 +1,4 @@
+from datetime import timedelta
 from tempfile import SpooledTemporaryFile
 from typing import IO, Any, Union
 
@@ -50,3 +51,8 @@ class Minio:
             part_size=5242880,
         )
         return result.object_name
+
+    def get_image(self, image_key: str) -> str:
+        expires = timedelta(minutes=20)
+        url = self._c.presigned_get_object(self._bucket, image_key, expires=expires)
+        return url

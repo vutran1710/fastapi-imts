@@ -3,7 +3,6 @@ from typing import Optional, Tuple
 
 from jose.jwt import decode, encode
 from logzero import logger as log
-
 from settings import Settings
 
 
@@ -15,7 +14,7 @@ class Jwt:
         now = datetime.now()
         iat = int(now.timestamp())
         exp = int((now + timedelta(**expire_times)).timestamp())
-        issuer = "q-n-a-vutran"
+        issuer = "itms"
         data.update({"exp": exp, "iat": iat, "issuer": issuer})
         jwt = encode(data, self._k, algorithm="HS256")
         return jwt, exp

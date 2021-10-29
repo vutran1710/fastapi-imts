@@ -9,3 +9,8 @@ class AuthException:
 
     FAIL_GOOGLE_AUTH = HTTPException(400)
     FAIL_FACEBOOK_AUTH = HTTPException(400)
+
+
+class ImageException:
+    IMAGE_ONLY = HTTPException(400, "Only images allowed")
+    INVALID_IMAGE_KEY = HTTPException(404, "Image's key not found")

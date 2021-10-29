@@ -5,7 +5,7 @@ from uuid import uuid4
 from asyncpg import Connection, Record, connect
 from asyncpg.exceptions import UniqueViolationError
 from model.enums import Provider
-from model.postgres import User
+from model.postgres import Image, User
 from settings import Settings
 
 Records = List[Record]
@@ -27,6 +27,8 @@ class Q:
     )
 
     INSERT_NEW_IMAGE = "INSERT INTO images (image_key, uploaded_by) VALUES ($1, $2)"
+
+    FIND_IMAGE_BY_KEY = "SELECT * FROM images WHERE image_key = $1"
 
     async def prepare(self, conn: Connection):
         for a in dir(self):
@@ -91,5 +93,9 @@ class Postgres:
         records: Records = await self.q.UPDATE_USER_TOKEN(token, time, email)  # type: ignore
         return User(**records[0])
 
-    async def insert_new_image(self, image_key: str, uploader: str):
+    async def insert_new_image(self, image_key: str, uploader: str) -> None:
         await self.q.INSERT_NEW_IMAGE(image_key, uploader)  # type: ignore
+
+    async def get_image(self, image_key: str) -> Optional[Image]:
+        records: Records = await self.q.FIND_IMAGE_BY_KEY(image_key)
+        return Image(**records[0]) if records else None
