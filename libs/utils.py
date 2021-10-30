@@ -1,9 +1,9 @@
+from re import findall
 from typing import Callable, Optional, Type, TypeVar
 from uuid import UUID, uuid1
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
-
 from settings import settings
 
 T = TypeVar("T")
@@ -61,3 +61,16 @@ def make_storage_key(image_name: str):
 def convert_string_to_uuid(string: str, version=1):
     uuid_obj = UUID(string, version=version)
     return uuid_obj
+
+
+def validate_tag(tag: str) -> bool:
+    if len(tag) > 20 or len(tag) < 2:
+        return False
+
+    general_pattern = "^([a-zA-Z0-9-]+)$"
+    invalid_pattern = "^([0-9-]+)$"
+
+    valid = findall(general_pattern, tag)
+    invalid = findall(invalid_pattern, tag)
+
+    return valid and len(valid) == 1 and not invalid

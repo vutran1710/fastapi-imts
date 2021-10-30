@@ -4,7 +4,6 @@ import pytest
 import pytest_asyncio  # noqa
 from fastapi.testclient import TestClient
 from logzero import logger as log
-
 from main import app
 from model.http import AuthResponse, GetImageResponse, UploadImageResponse
 from repository.minio import Minio
@@ -111,6 +110,14 @@ async def test_image_upload(setup_pg):
     tagged = UploadImageResponse(**response.json())
     assert tagged.tags and len(tagged.tags) == 3
 
+    # Upload invalid file with invalid name
+    response = client.post(
+        API.upload,
+        headers={"Authorization": f"Bearer {auth.access_token}"},
+        files={"image": ("invalid-name", image_data, "multipart/form-data")},
+    )
+    assert response.status_code == 400
+
     # Test get image by id
     tags = ["foo", "bar", "nono"]
     response = client.get(
@@ -127,6 +134,13 @@ async def test_image_upload(setup_pg):
     assert image.tags and len(image.tags) == 3
     assert image.url
     assert image.created_at
+
+    # Getting an invalid image id
+    response = client.get(
+        API.get + "invalid-image-id",
+        headers={"Authorization": f"Bearer {auth.access_token}"},
+    )
+    assert response.status_code == 404
 
     # cleanup
     await pg.c.fetch("DELETE FROM users WHERE email = $1", email)

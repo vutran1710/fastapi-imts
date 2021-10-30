@@ -4,10 +4,9 @@ from uuid import uuid1, uuid4
 
 import pytest  # noqa
 import pytest_asyncio  # noqa
-from pydantic import BaseModel
-
 from libs.utils import (convert_string_to_uuid, initialize_model, trying,
-                        validate_image_file)
+                        validate_image_file, validate_tag)
+from pydantic import BaseModel
 
 
 def test_trying_decorator():
@@ -90,3 +89,25 @@ def test_string_uuid_conversion():
 
     invalid = convert_string_to_uuid("sdfsdf", version=4)
     assert invalid is None
+
+
+def test_validate_tag():
+    """Tag must be
+    - less than 20 chars
+    - contain only alphabet & numberic & "-"
+    - at least one character
+    """
+    valids = ["hello", "welcome", "good", "brokelyn9-9"]
+    invalids = [
+        "@hello",
+        "welcome yeah",
+        "good to great",
+        "my heart will go on",
+        "123123123",
+    ]
+
+    for v in valids:
+        assert validate_tag(v)
+
+    for v in invalids:
+        assert not validate_tag(v)

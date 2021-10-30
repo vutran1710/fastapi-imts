@@ -27,8 +27,8 @@ app.include_router(
     tags=["Image"],
 )
 
-# app.include_router(
-#     api.TagRouter,
-#     prefix="/v1/tag",
-#     tags=["Tags"],
-# )
+app.include_router(
+    api.TagRouter,
+    prefix="/v1/tags",
+    tags=["Tags"],
+)

@@ -36,6 +36,7 @@ CREATE TABLE "tags" (
 CREATE TABLE "tagged" (
   "tag" int,
   "image" uuid,
+  "created_at" timestamp,
   PRIMARY KEY ("tag", "image")
 );
 

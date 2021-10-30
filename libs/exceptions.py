@@ -14,3 +14,7 @@ class AuthException:
 class ImageException:
     IMAGE_ONLY = HTTPException(400, "Only images allowed")
     INVALID_IMAGE_ID = HTTPException(404, "Image not found")
+
+
+class TagException:
+    INVALID_TAGS = HTTPException(400, "Invalid tags")

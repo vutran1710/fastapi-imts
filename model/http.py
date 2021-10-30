@@ -2,7 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import AnyHttpUrl, BaseModel
+from libs.utils import validate_tag
+from pydantic import AnyHttpUrl, BaseModel, validator
 
 from .enums import Provider
 
@@ -55,3 +56,16 @@ class GetImageResponse(BaseModel):
     uploaded_by: UUID
     url: AnyHttpUrl
     tags: List[str] = []
+
+
+class AddTagsRequest(BaseModel):
+    tags: List[str]
+
+    def __init__(self, *args, **kwargs):
+        "Remove duplicate value, remove invalid tags"
+        super().__init__(*args, **kwargs)
+        self.tags = list(set(t.lower() for t in self.tags if validate_tag(t)))
+
+
+class AddTagsResponse(BaseModel):
+    tags: List[str]
