@@ -6,8 +6,13 @@ import pytest  # noqa
 import pytest_asyncio  # noqa
 from pydantic import BaseModel
 
-from libs.utils import (convert_string_to_uuid, initialize_model, trying,
-                        validate_image_file, validate_tag)
+from libs.utils import (
+    convert_string_to_uuid,
+    initialize_model,
+    trying,
+    validate_image_file,
+    validate_tag,
+)
 
 
 def test_trying_decorator():
