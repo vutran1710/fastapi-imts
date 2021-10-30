@@ -37,7 +37,7 @@ format = "black ."
 flake = "flake8 ."
 type = "mypy ."
 sort = "isort ."
-test = "pytest tests -v -s --cov=."
+test = "pytest tests -v -s --cov=. --cov-report html"
 
 [pipenv]
 allow_prereleases = true

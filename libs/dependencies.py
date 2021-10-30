@@ -20,7 +20,7 @@ jwt = Jwt(settings)
 scheme = OAuth2PasswordBearer(tokenUrl="/v1/auth/login")
 
 
-async def jwt_guard(token: str = Depends(scheme)):
+def jwt_guard(token: str = Depends(scheme)):
     global jwt
 
     claim = jwt.decode(token)

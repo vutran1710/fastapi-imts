@@ -2,3 +2,4 @@
 .persist/
 .pytest_cache/
 .coverage
+htmlcov/
