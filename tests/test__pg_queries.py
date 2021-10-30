@@ -8,9 +8,8 @@ import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
 from faker import Faker
-from logzero import logger as log
-
 from libs.utils import make_storage_key
+from logzero import logger as log
 from model.postgres import Image, Tag, TaggedImage, User
 from repository.postgres import Postgres
 from settings import settings
@@ -31,6 +30,15 @@ async def setup_pg():
     assert isinstance(pg.c, Connection)
 
     yield pg
+
+    await pg.c.execute(
+        """
+    DELETE FROM tagged;
+    DELETE FROM tags;
+    DELETE FROM images;
+    DELETE FROM users;
+    """
+    )
 
     await pg.c.close()
 
@@ -74,9 +82,6 @@ async def test_save_user(setup_pg):
     non_exist = await pg.get_user(email="non-exist@mail.com")
     assert non_exist is None
 
-    # clean up
-    await pg.c.fetch(f"DELETE FROM users WHERE email = '{new_user.email}'")
-
 
 async def test_save_user_social(setup_pg):
     """Test insert a new user who using social-login to User table
@@ -119,9 +124,6 @@ async def test_save_user_social(setup_pg):
     assert updated_user.provider == user[3]
     new_user.id == updated_user.id
 
-    # clean up
-    await pg.c.fetch(f"DELETE FROM users WHERE email = '{new_user.email}'")
-
 
 async def test_save_and_get_image(setup_pg):
     """Test saving and retrieving image from Posgres
@@ -158,11 +160,6 @@ async def test_save_and_get_image(setup_pg):
     non_exist = await pg.get_image(uuid1())
     assert non_exist is None
 
-    # clean up
-    # NOTE: image must be erased first due to foreign-key relationship to user table
-    await pg.c.fetch(f"DELETE FROM images WHERE id = '{image.id}'")
-    await pg.c.fetch(f"DELETE FROM users WHERE email = '{user.email}'")
-
 
 async def test_save_tags(setup_pg):
     pg = setup_pg
@@ -182,11 +179,6 @@ async def test_save_tags(setup_pg):
 
     # Upsert OK, return ID for existing tag
     assert len(tags) == 5
-
-    # cleanup
-    tags = set(tags_list_1 + tags_list_2)
-    for t in tags:
-        await pg.c.fetch("DELETE FROM tags WHERE name = $1", t)
 
 
 async def test_save_and_get_tagged_image(setup_pg):
@@ -217,10 +209,6 @@ async def test_save_and_get_tagged_image(setup_pg):
     after_insert = await pg.c.fetchval("SELECT COUNT(*) FROM tagged")
 
     assert after_insert == before_insert + len(tags)
-
-    # clean up
-    await pg.c.fetch(f"DELETE FROM images WHERE id = '{image.image.id}'")
-    await pg.c.fetch(f"DELETE FROM users WHERE email = '{user.email}'")
 
 
 async def test_search_image(setup_pg):
@@ -294,6 +282,3 @@ async def test_search_image(setup_pg):
 
     # Overlapping
     assert last_row_id == first_row_id
-
-    await pg.c.fetch("TRUNCATE images CASCADE")
-    await pg.c.fetch("TRUNCATE tags CASCADE")

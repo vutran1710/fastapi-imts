@@ -11,24 +11,26 @@ from settings import Settings
 
 
 class PreparedQuery:
-    """Turn every raw queries into prepared-statements"""
+    """Turn all raw queries into prepared-statements"""
 
     async def prepare(self, conn: Connection):
         for a in dir(PsqlQueries):
             if a.isupper():
                 query: str = getattr(PsqlQueries, a)
 
-                def __get_fetch__(query_statement: str):
+                async def __get_fetch__(query_statement: str):
+                    prepared = await conn.prepare(query_statement)
+
                     async def wrapped(*args, method="fetch"):
-                        nonlocal conn
-                        prepared = await conn.prepare(query_statement)
+                        nonlocal conn, prepared
                         fetcher = getattr(prepared, method)
                         result = await fetcher(*args)
                         return result
 
                     return wrapped
 
-                setattr(self, a, __get_fetch__(query))
+                method = await __get_fetch__(query)
+                setattr(self, a, method)
 
 
 class Postgres:
@@ -145,9 +147,8 @@ class Postgres:
         )
 
         images = [Image(**r) for r in records]
-        records = await self.q.GET_TAGS_FOR_MULTIPLE_IMAGES(  # type: ignore
-            [(None, i.id, None) for i in images]
-        )
+        values = [(None, i.id, None) for i in images]
+        records = await self.q.GET_TAGS_FOR_MULTIPLE_IMAGES(values)  # type: ignore
 
         image_tags = {}
 

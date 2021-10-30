@@ -48,4 +48,6 @@ ALTER TABLE "tagged" ADD FOREIGN KEY ("tag") REFERENCES "tags" ("id");
 
 ALTER TABLE "tagged" ADD FOREIGN KEY ("image") REFERENCES "images" ("id") ON DELETE CASCADE;
 
+ALTER TABLE "tagged" ADD FOREIGN KEY ("tag") REFERENCES "tags" ("id") ON DELETE CASCADE;
+
 CREATE INDEX ON "tagged" ("image");
