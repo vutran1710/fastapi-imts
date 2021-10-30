@@ -3,10 +3,8 @@
 import pytest
 import pytest_asyncio  # noqa
 from fastapi.testclient import TestClient
-from logzero import logger as log
-
 from main import app
-from model.http import AddTagsRequest, AddTagsResponse, AuthResponse
+from model.http import AddTagsResponse, AuthResponse
 from repository.postgres import Postgres
 from settings import settings
 
@@ -38,7 +36,7 @@ async def test_add_tags(setup_pg):
     class API:
         signup = "v1/auth/sign-up"
         login = "v1/auth/login"
-        add_tag = "v1/tags"
+        add_tag = "v1/tag"
 
     email, password = "image-uploader@vutr.io", "123123123"
 

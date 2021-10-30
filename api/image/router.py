@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, File, Form, UploadFile
-
 from libs.dependencies import jwt_guard
 from libs.exceptions import ImageException
 from libs.utils import make_storage_key, validate_image_file
@@ -11,7 +10,7 @@ from repository import Minio, Postgres, get_minio, get_pg
 router = APIRouter()
 
 
-@router.post("/upload", response_model=UploadImageResponse)
+@router.post("", response_model=UploadImageResponse)
 async def upload_image(
     user: AuthenticatedUser = Depends(jwt_guard),
     image: UploadFile = File(...),

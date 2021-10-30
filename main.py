@@ -29,6 +29,6 @@ app.include_router(
 
 app.include_router(
     api.TagRouter,
-    prefix="/v1/tags",
+    prefix="/v1/tag",
     tags=["Tags"],
 )
