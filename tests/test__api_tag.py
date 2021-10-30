@@ -4,6 +4,7 @@ import pytest
 import pytest_asyncio  # noqa
 from fastapi.testclient import TestClient
 from logzero import logger as log
+
 from main import app
 from model.http import AddTagsRequest, AddTagsResponse, AuthResponse
 from repository.postgres import Postgres

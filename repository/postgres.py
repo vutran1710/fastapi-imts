@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 from uuid import UUID, uuid1, uuid4
 
 from asyncpg import Connection, connect
+
 from libs.utils import convert_string_to_uuid
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User

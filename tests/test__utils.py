@@ -4,9 +4,10 @@ from uuid import uuid1, uuid4
 
 import pytest  # noqa
 import pytest_asyncio  # noqa
+from pydantic import BaseModel
+
 from libs.utils import (convert_string_to_uuid, initialize_model, trying,
                         validate_image_file, validate_tag)
-from pydantic import BaseModel
 
 
 def test_trying_decorator():

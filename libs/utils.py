@@ -73,4 +73,4 @@ def validate_tag(tag: str) -> bool:
     valid = findall(general_pattern, tag)
     invalid = findall(invalid_pattern, tag)
 
-    return valid and len(valid) == 1 and not invalid
+    return bool(valid and len(valid) == 1 and not invalid)

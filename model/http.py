@@ -3,7 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from libs.utils import validate_tag
-from pydantic import AnyHttpUrl, BaseModel, validator
+from pydantic import AnyHttpUrl, BaseModel
 
 from .enums import Provider
 
