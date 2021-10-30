@@ -6,9 +6,8 @@ from uuid import UUID, uuid1
 import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
-from logzero import logger as log
-
 from libs.utils import make_storage_key
+from logzero import logger as log
 from model.postgres import Image, Tag, TaggedImage, User
 from repository.postgres import Postgres
 from settings import settings
@@ -201,6 +200,7 @@ async def test_save_and_get_tagged_image(setup_pg):
 
     assert isinstance(image, TaggedImage)
     assert len(image.tags) == len(tags)
+    assert image.created_at == image.image.created_at
 
     tags = await pg.get_image_tags(image.image.id)
     log.debug(tags)

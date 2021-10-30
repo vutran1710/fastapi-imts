@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 from uuid import UUID, uuid1, uuid4
 
 from asyncpg import Connection, connect
-
 from libs.utils import convert_string_to_uuid
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User
@@ -66,8 +65,8 @@ class Query:
     """
 
     INSERT_TAGGED_IMAGE = """
-    INSERT INTO tagged (tag, image)
-    (SELECT r.tag, r.image FROM unnest($1::tagged[]) as r)
+    INSERT INTO tagged (tag, image, created_at)
+    (SELECT r.tag, r.image, r.created_at FROM unnest($1::tagged[]) as r)
     RETURNING *
     """
 
@@ -187,11 +186,11 @@ class Postgres:
             image = await self.save_image(image_name, storage_key, uploader)
 
         saved_tags = await self.save_tags(tags)
-        data = [(tag.id, image.id) for tag in saved_tags]
+        data = [(tag.id, image.id, image.created_at) for tag in saved_tags]
 
         await self.q.INSERT_TAGGED_IMAGE(data)  # type: ignore
 
-        return TaggedImage(image=image, tags=saved_tags)
+        return TaggedImage(image=image, tags=saved_tags, created_at=image.created_at)
 
     async def get_image_tags(self, image_id: Union[str, UUID]) -> List[str]:
         records = await self.q.GET_IMAGE_TAGS(image_id)  # type: ignore

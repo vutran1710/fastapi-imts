@@ -33,3 +33,4 @@ class Tag(BaseModel):
 class TaggedImage(BaseModel):
     image: Image
     tags: List[Tag]
+    created_at: datetime
