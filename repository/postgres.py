@@ -78,6 +78,43 @@ class Query:
     ON tags.id = items.tag
     """
 
+    SEARCH_TAGGED_IMAGES_BY_TAGS = """
+    WITH tag_ids AS (
+            SELECT id
+            FROM tags
+            WHERE name IN (SELECT r.name FROM unnest($1::tags[]) as r)
+         ),
+
+         tag_image_ids AS (
+            SELECT image, created_at
+            FROM tagged
+            WHERE tag IN (SELECT id FROM tag_ids)
+            AND created_at >= $2 AND created_at <= $3
+            ORDER BY created_at DESC LIMIT $4 OFFSET $5
+         )
+    SELECT images.*
+    FROM images
+    RIGHT JOIN tag_image_ids ON tag_image_ids.image = images.id
+    ORDER BY images.created_at DESC
+    """
+
+    GET_TAGS_FOR_MULTIPLE_IMAGES = """
+    WITH image_tag AS (
+             SELECT *
+             FROM tagged
+             WHERE image
+             IN (SELECT r.image FROM unnest($1::tagged[]) as r)
+         ),
+         image_tag_name AS (
+             SELECT image_tag.image, tags.name
+             FROM image_tag
+             LEFT JOIN tags ON image_tag.tag = tags.id
+         )
+    SELECT image, string_agg(name, ',') AS tags
+    FROM image_tag_name
+    GROUP BY image
+    """
+
     async def prepare(self, conn: Connection):
         for a in dir(self):
             if a.isupper():
@@ -195,3 +232,34 @@ class Postgres:
     async def get_image_tags(self, image_id: Union[str, UUID]) -> List[str]:
         records = await self.q.GET_IMAGE_TAGS(image_id)  # type: ignore
         return [r["name"] for r in records]
+
+    async def search_image_by_tags(
+        self,
+        tags: List[str],
+        limit: int = 5,
+        from_time=datetime.fromtimestamp(0),
+        to_time=datetime.now(),
+        offset=0,
+    ) -> List[TaggedImage]:
+        tag_param = [(None, t) for t in tags]
+        records = await self.q.SEARCH_TAGGED_IMAGES_BY_TAGS(
+            tag_param, from_time, to_time, limit, offset
+        )  # type: ignore
+
+        images = [Image(**r) for r in records]
+        records = await self.q.GET_TAGS_FOR_MULTIPLE_IMAGES(
+            [(None, i.id, None) for i in images]
+        )  # type: ignore
+
+        image_tags = {}
+
+        for record in records:
+            image_id, tags = record["image"], record["tags"].split(",")
+            image_tags.update({image_id: [Tag(name=t) for t in tags]})
+
+        tagged_image = [
+            TaggedImage(image=i, tags=image_tags[i.id], created_at=i.created_at)
+            for i in images
+        ]
+
+        return tagged_image

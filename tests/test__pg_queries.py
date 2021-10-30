@@ -1,16 +1,22 @@
 """Unit testing the custom Postgres module
 """
 from datetime import datetime
+from random import sample
 from uuid import UUID, uuid1
 
 import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
-from libs.utils import make_storage_key
+from faker import Faker
 from logzero import logger as log
+
+from libs.utils import make_storage_key
 from model.postgres import Image, Tag, TaggedImage, User
 from repository.postgres import Postgres
 from settings import settings
+
+fake = Faker()
+Faker.seed(0)
 
 pytestmark = pytest.mark.asyncio
 
@@ -215,3 +221,79 @@ async def test_save_and_get_tagged_image(setup_pg):
     # clean up
     await pg.c.fetch(f"DELETE FROM images WHERE id = '{image.image.id}'")
     await pg.c.fetch(f"DELETE FROM users WHERE email = '{user.email}'")
+
+
+async def test_search_image(setup_pg):
+    global fake
+    pg = setup_pg
+
+    tags = ["foo", "bar", "hello", "world", "goodbye", "wall"]
+
+    for _ in range(100):
+        image_name = fake.file_name(category="image")
+        storage_key = make_storage_key(image_name)
+        uploader = None
+        image_tags = sample(tags, 2)
+        image = await pg.save_tagged_image(
+            image_name, storage_key, uploader, image_tags
+        )
+
+        random_created_time = fake.date_time()
+        assert isinstance(random_created_time, datetime)
+        await pg.c.fetch(
+            "UPDATE images SET created_at = $1 WHERE id = $2",
+            random_created_time,
+            image.image.id,
+        )
+        await pg.c.fetch(
+            "UPDATE tagged SET created_at = $1 WHERE image = $2",
+            random_created_time,
+            image.image.id,
+        )
+
+    count = await pg.c.fetchval("SELECT COUNT(*) FROM images")
+    assert count == 100
+
+    # Search image by tags
+    tags_to_search = ["foo", "bar"]
+    from_time, to_time = datetime(2000, 10, 10), datetime(2018, 10, 10)
+    search_images = await pg.search_image_by_tags(
+        tags_to_search,
+        limit=3,
+        from_time=from_time,
+        to_time=to_time,
+    )
+
+    assert len(search_images) == 3
+
+    for img in search_images:
+        assert isinstance(img, TaggedImage)
+        image_tags = [t.name for t in img.tags]
+        # Image returned has at least one tag in the searching tag
+        assert len(set(image_tags + tags_to_search)) < (
+            len(image_tags) + len(tags_to_search)
+        )
+        assert from_time <= img.created_at <= to_time
+
+    last_row_id = search_images[-1].image.id
+    log.info("> Limit=3, Offset=0, Page=0 ==> last row %s", last_row_id)
+
+    # Pagination with offset
+    search_images = await pg.search_image_by_tags(
+        tags_to_search,
+        limit=3,
+        offset=2,
+        from_time=from_time,
+        to_time=to_time,
+    )
+
+    assert len(search_images) == 3
+
+    first_row_id = search_images[0].image.id
+    log.info("> Limit=3, Offset=2, Page=1 ==> first row %s", first_row_id)
+
+    # Overlapping
+    assert last_row_id == first_row_id
+
+    await pg.c.fetch("TRUNCATE images CASCADE")
+    await pg.c.fetch("TRUNCATE tags CASCADE")

@@ -27,6 +27,7 @@ mypy = "*"
 pytest = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
+faker = "*"
 
 [requires]
 python_version = "3.9"
@@ -37,7 +38,7 @@ format = "black ."
 flake = "flake8 ."
 type = "mypy ."
 sort = "isort ."
-test = "pytest tests --maxfail=1 -v -s --cov=. --cov-report html"
+test = "pytest tests/test__pg_queries.py --maxfail=1 -v -s --cov=. --cov-report html"
 
 [pipenv]
 allow_prereleases = true

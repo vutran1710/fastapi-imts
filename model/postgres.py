@@ -26,7 +26,9 @@ class Image(BaseModel):
 
 
 class Tag(BaseModel):
-    id: int
+    """Make default ID=-1 when we dont really care about the tag id"""
+
+    id: int = -1
     name: str
 
 
