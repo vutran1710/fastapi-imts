@@ -21,9 +21,10 @@ CREATE TABLE "profiles" (
 );
 
 CREATE TABLE "images" (
-  "id" SERIAL PRIMARY KEY,
+  "id" uuid PRIMARY KEY,
+  "name" varchar NOT NULL,
+  "storage_key" varchar UNIQUE NOT NULL,
   "created_at" timestamp DEFAULT current_timestamp,
-  "image_key" varchar UNIQUE NOT NULL,
   "uploaded_by" uuid NULL
 );
 
@@ -34,7 +35,7 @@ CREATE TABLE "tags" (
 
 CREATE TABLE "tagged" (
   "tag" int,
-  "image" int,
+  "image" uuid,
   PRIMARY KEY ("tag", "image")
 );
 

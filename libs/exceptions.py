@@ -13,4 +13,4 @@ class AuthException:
 
 class ImageException:
     IMAGE_ONLY = HTTPException(400, "Only images allowed")
-    INVALID_IMAGE_KEY = HTTPException(404, "Image's key not found")
+    INVALID_IMAGE_ID = HTTPException(404, "Image not found")

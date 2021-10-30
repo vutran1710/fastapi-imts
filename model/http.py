@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List, Optional
 from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel
@@ -39,8 +40,18 @@ class AuthResponse(BaseModel):
     token_type = "bearer"
 
 
-class GetImageResponse(BaseModel):
+class UploadImageResponse(BaseModel):
+    id: UUID
+    name: str
+    uploaded_by: Optional[UUID]
     created_at: datetime
-    image_key: str
+    tags: List[str] = []
+
+
+class GetImageResponse(BaseModel):
+    id: UUID
+    name: str
+    created_at: datetime
     uploaded_by: UUID
     url: AnyHttpUrl
+    tags: List[str] = []

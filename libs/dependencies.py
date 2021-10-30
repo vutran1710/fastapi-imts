@@ -3,10 +3,11 @@ from typing import Union
 from fastapi import Depends
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
+
 from model.auth import AuthenticatedUser
 from model.http import AuthResponse
 from model.postgres import User
-from passlib.context import CryptContext
 from settings import settings
 
 from .jwt import Jwt

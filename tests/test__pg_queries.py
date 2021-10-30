@@ -1,11 +1,14 @@
 """Unit testing the custom Postgres module
 """
 from datetime import datetime
+from uuid import UUID, uuid1
 
 import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
 from logzero import logger as log
+
+from libs.utils import make_storage_key
 from model.postgres import Image, Tag, TaggedImage, User
 from repository.postgres import Postgres
 from settings import settings
@@ -124,21 +127,30 @@ async def test_save_and_get_image(setup_pg):
     user = ("dummy@vutr.io", "some-password-no-need-encrypting")
     user: User = await pg.save_user(*user)
 
-    data = ("some-image.png", user.id)
+    image_name = "some-image.png"
+    storage_key = make_storage_key(image_name)
+    data = (image_name, storage_key, user.id)
     image: Image = await pg.save_image(*data)
     assert isinstance(image, Image)
-    assert isinstance(image.id, int)
+
+    assert image.name == data[0]
+    assert isinstance(image.id, UUID)
     assert image.uploaded_by == user.id
-    assert image.image_key == data[0]
+    assert image.storage_key == storage_key
 
     # Retrieve image by image-key only
-    get_image: Image = await pg.get_image(image.image_key)
+    get_image: Image = await pg.get_image(image.id)
     assert isinstance(get_image, Image)
+
     assert get_image.id == image.id
-    assert get_image.image_key == image.image_key
+    assert get_image.storage_key == image.storage_key
+    assert get_image.uploaded_by == user.id
     assert get_image.created_at
 
     non_exist = await pg.get_image("non-exist-image-key")
+    assert non_exist is None
+
+    non_exist = await pg.get_image(uuid1())
     assert non_exist is None
 
     # clean up
@@ -182,11 +194,19 @@ async def test_save_and_get_tagged_image(setup_pg):
     user: User = await pg.save_user(*user)
 
     tags = ["one", "two", "three"]
-    data = ("some-image.png", user.id, tags)
+    image_name = "some-image.png"
+    storage_key = make_storage_key(image_name)
+    data = (image_name, storage_key, user.id, tags)
     image: TaggedImage = await pg.save_tagged_image(*data)
 
     assert isinstance(image, TaggedImage)
     assert len(image.tags) == len(tags)
+
+    tags = await pg.get_image_tags(image.image.id)
+    log.debug(tags)
+    assert tags and len(tags) == 3
+    for t in tags:
+        assert isinstance(t, str)
 
     after_insert = await pg.c.fetchval("SELECT COUNT(*) FROM tagged")
 

@@ -1,14 +1,13 @@
 """Unit testing utility functions
 """
-from datetime import datetime
+from uuid import uuid1, uuid4
 
 import pytest  # noqa
 import pytest_asyncio  # noqa
-from fastapi import HTTPException
-from libs.exceptions import AuthException
-from libs.utils import (initialize_model, raise_if_falsy, trying,
-                        validate_image_file)
 from pydantic import BaseModel
+
+from libs.utils import (convert_string_to_uuid, initialize_model, trying,
+                        validate_image_file)
 
 
 def test_trying_decorator():
@@ -32,21 +31,6 @@ def test_trying_decorator():
         raise Exception
 
     assert will_raise() is False
-
-
-def test_raise_on_falsy():
-    """A short function that help raise HTTPException on having Falsy/None value returned"""
-    try:
-        raise_if_falsy(ValueError, None)
-        assert False
-    except ValueError:
-        pass
-
-    try:
-        raise_if_falsy(AuthException.DUPLICATE_USER, False)
-        assert False
-    except HTTPException as e:
-        assert e == AuthException.DUPLICATE_USER
 
 
 def test_initializing_model():
@@ -86,3 +70,23 @@ def test_validate_image():
 
     for n in invalid_names:
         assert validate_image_file(n) is False
+
+
+def test_string_uuid_conversion():
+    valid_id = uuid1()
+    str_uuid = str(valid_id)
+    uuid_convert = convert_string_to_uuid(str_uuid)
+
+    assert str(uuid_convert) == str_uuid
+
+    invalid = convert_string_to_uuid("sdfsdf")
+    assert invalid is None
+
+    valid_id = uuid4()
+    str_uuid = str(valid_id)
+    uuid_convert = convert_string_to_uuid(str_uuid, version=4)
+
+    assert str(uuid_convert) == str_uuid
+
+    invalid = convert_string_to_uuid("sdfsdf", version=4)
+    assert invalid is None

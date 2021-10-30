@@ -1,8 +1,9 @@
-from typing import Any, Callable, Optional, Type, TypeVar
-from uuid import uuid1
+from typing import Callable, Optional, Type, TypeVar
+from uuid import UUID, uuid1
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
+
 from settings import settings
 
 T = TypeVar("T")
@@ -21,13 +22,6 @@ def trying(on_exception=None):
         return wrapped
 
     return wrapped_
-
-
-def raise_if_falsy(exception: Exception, value: Any):
-    if not value:
-        raise exception
-
-    return value
 
 
 @trying()
@@ -57,7 +51,13 @@ def validate_image_file(filename: str):
     return name and ext in valid_extensions
 
 
-def fix_image_name(filename: str):
+def make_storage_key(image_name: str):
     """Guarantee uniqueness constraint of image_key"""
-    new_name = f"{uuid1()}__{filename}"
-    return new_name
+    storage_key = f"{uuid1()}__{image_name}"
+    return storage_key
+
+
+@trying()
+def convert_string_to_uuid(string: str, version=1):
+    uuid_obj = UUID(string, version=version)
+    return uuid_obj

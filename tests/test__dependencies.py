@@ -5,6 +5,8 @@ from uuid import uuid4
 
 import pytest
 import pytest_asyncio  # noqa
+from fastapi import HTTPException
+
 from libs.dependencies import create_auth_response, jwt_guard
 from model.auth import AuthenticatedUser
 from model.http import AuthResponse
@@ -46,3 +48,14 @@ def test_jwt_guard_and_auth_response():
     assert auth_data.token_type == "bearer"
     assert auth_data.provider == "app"
     assert auth_data.user_id == str(standard_user.id)
+
+    # Invalid token handling
+    token = "invalid"
+
+    try:
+        jwt_guard(token)
+        assert False
+    except HTTPException as e:
+        assert e.status_code == 401
+    except Exception:
+        assert False

@@ -22,12 +22,6 @@ app.include_router(
 )
 
 app.include_router(
-    api.ProfileRouter,
-    prefix="/v1/profile",
-    tags=["Profile"],
-)
-
-app.include_router(
     api.ImageRouter,
     prefix="/v1/image",
     tags=["Image"],

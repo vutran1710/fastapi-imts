@@ -18,10 +18,11 @@ class User(BaseModel):
 
 
 class Image(BaseModel):
-    id: int
+    id: UUID
+    name: str
     created_at: datetime
-    image_key: str
-    uploaded_by: UUID
+    storage_key: str
+    uploaded_by: Optional[UUID]
 
 
 class Tag(BaseModel):

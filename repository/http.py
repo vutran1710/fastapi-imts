@@ -1,6 +1,7 @@
 from typing import Optional
 
 from httpx import AsyncClient, Response
+
 from model.auth import FBLoginData
 from model.http import FBUserInfo
 

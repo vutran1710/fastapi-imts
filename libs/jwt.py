@@ -3,6 +3,7 @@ from typing import Optional, Tuple
 
 from jose.jwt import decode, encode
 from logzero import logger as log
+
 from settings import Settings
 
 
