@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from libs.utils import validate_tag
+from libs.utils import fix_tags
 from pydantic import AnyHttpUrl, BaseModel
 
 from .enums import Provider
@@ -64,7 +64,7 @@ class AddTagsRequest(BaseModel):
     def __init__(self, *args, **kwargs):
         "Remove duplicate value, remove invalid tags"
         super().__init__(*args, **kwargs)
-        self.tags = list(set(t.lower() for t in self.tags if validate_tag(t)))
+        self.tags = fix_tags(self.tags)
 
 
 class AddTagsResponse(BaseModel):

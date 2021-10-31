@@ -77,9 +77,10 @@ def validate_tag(tag: str) -> bool:
 
 
 def fix_tags(tags: Union[List[str], str, None]) -> List[str]:
+    """extract only valid tags, remove duplicate as well"""
     if not tags:
         return []
 
     tag_list = tags.split(",") if isinstance(tags, str) else tags
-    valid_tags_only = [t.lower() for t in tag_list if validate_tag(t)]
-    return valid_tags_only
+    valid_tags_only = [t.lower().strip() for t in tag_list if validate_tag(t)]
+    return list(set(valid_tags_only))
