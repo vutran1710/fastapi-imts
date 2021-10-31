@@ -2,10 +2,10 @@
 
 
 ## Setup
-Installing everything
+Copy **docker-local.env** to your own **.env** file, installing project dependencies and start docker-compose.
 ```
-$ pipenv install --dev --pre
 $ cp docker-local.env .env
+$ pipenv install --dev --pre
 $ docker-compose up -d
 $ pipenv run dev
 ```
@@ -105,17 +105,20 @@ Authenticated User or API-consumer will have their every sent request info save 
 ### Writing code, linting & format
 - Code format complies with **Black**. Auto-format everything with..
 ```
-pipenv run format
+$ pipenv run format
 ```
 
 - **Radon** is used to ensure high readability, in conjunction with **flake8** complex level (maximum  4). Check for code-complexity using...
 ```
-pipenv run flake
+$ pipenv run flake
 ```
 
-- **Imports** are arranged automatically with **isort**
+- **imports** are arranged automatically with **isort**. Fix sorting issues with...
+```
+$ pipenv run sort
+```
 
 - Strict typing with **mypy**. Check for typing errors with
 ```
-pipenv run type
+$ pipenv run type
 ```

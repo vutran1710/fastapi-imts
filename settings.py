@@ -18,7 +18,6 @@ class Settings(BaseSettings):
     STORAGE_ACCESS_KEY: str
     STORAGE_SECRET_KEY: str
     STORAGE_BUCKET: str
-    AUTH0_KEY: str
     JWT_SECRET: str
     GOOGLE_APP_CLIENT_ID: str
     STAGE: Stage = "development"
