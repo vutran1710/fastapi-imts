@@ -86,16 +86,16 @@ async def upload_image(
             created_at=saved_image.created_at,
         )
 
-    split_tags = tags.split(",")
+    fixed_tags = fix_tags(tags)
     tagged_image: TaggedImage = await pg.save_tagged_image(
-        image.filename, storage_key, user.user_id, split_tags
+        image.filename, storage_key, user.user_id, fixed_tags
     )
     return UploadImageResponse(
         id=tagged_image.image.id,
         name=image.filename,
         uploaded_by=tagged_image.image.uploaded_by,
         created_at=tagged_image.image.created_at,
-        tags=split_tags,
+        tags=fixed_tags,
     )
 
 

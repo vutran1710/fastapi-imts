@@ -1,6 +1,9 @@
 from os import getenv
+from typing import Literal
 
 from pydantic import BaseSettings
+
+Stage = Literal["production", "development", "test", "staging", "cicd"]
 
 
 class Settings(BaseSettings):
@@ -17,7 +20,7 @@ class Settings(BaseSettings):
     AUTH0_KEY: str
     JWT_SECRET: str
     GOOGLE_APP_CLIENT_ID: str
-    STAGE: str = "development"
+    STAGE: Stage = "development"
     CORS_ORIGINS_ALLOWED: str = "*"
 
     def __init__(self, *args, **kwargs):
