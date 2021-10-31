@@ -1,3 +1,5 @@
+-- Generated with dbdiagram.io
+
 CREATE TYPE "AuthProviders" AS ENUM (
   'facebook',
   'google',
