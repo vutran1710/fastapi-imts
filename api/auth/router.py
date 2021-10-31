@@ -4,8 +4,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from libs.dependencies import create_auth_response, crypt, jwt_guard
 from libs.exceptions import AuthException
 from libs.utils import initialize_model, validate_google_user
-from model.auth import (AuthenticatedUser, FBLoginData, GoogleLoginData,
-                        SimpleUserCredential)
+from model.auth import (
+    AuthenticatedUser,
+    FBLoginData,
+    GoogleLoginData,
+    SimpleUserCredential,
+)
 from model.http import AuthResponse
 from repository import Http, Postgres, get_http, get_pg
 

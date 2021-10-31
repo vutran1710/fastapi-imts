@@ -50,12 +50,9 @@ def test_jwt_guard_and_auth_response():
     assert auth_data.user_id == str(standard_user.id)
 
     # Invalid token handling
-    token = "invalid"
-
-    try:
+    with pytest.raises(HTTPException) as excepinfo:
+        token = "invalid"
         jwt_guard(token)
-        assert False
-    except HTTPException as e:
-        assert e.status_code == 401
-    except Exception:
-        assert False
+
+    unauthorized_exception = excepinfo.value
+    assert unauthorized_exception.status_code == 401
