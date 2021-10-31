@@ -122,3 +122,15 @@ $ pipenv run sort
 ```
 $ pipenv run type
 ```
+
+
+
+
+### Testing, code-coverage
+Testing is done with **pytest**. Run the full test suite with
+```
+$ pipenv run test
+```
+
+
+Coverage report format is set as `html`. After having finish the test run, go to *htmlcov/index.html* to view test report.
