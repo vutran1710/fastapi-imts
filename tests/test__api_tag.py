@@ -1,43 +1,16 @@
 """Testing authentication flow of App
 """
-import pytest
-import pytest_asyncio  # noqa
-from fastapi.testclient import TestClient
-
-from main import app
 from model.http import AddTagsResponse, AuthResponse
-from repository.postgres import Postgres
-from settings import settings
 
-client = TestClient(app)
-
-pytestmark = pytest.mark.asyncio
+from .fixtures import API, pytestmark, setup  # noqa
 
 
-@pytest.fixture(autouse=True)
-async def setup_pg():
-    """Before each test, init a new Postgres instance
-    Note that since each test case has its own event-loop,
-    the pg instance must be created separately
-    """
-    pg = await Postgres.init(settings)
-
-    yield pg
-
-    await pg.c.close()
-
-
-async def test_add_tags(setup_pg):
+async def test_add_tags(setup):  # noqa
     """Testing
     - Add tags
     - No need get
     """
-    pg = setup_pg
-
-    class API:
-        signup = "v1/auth/sign-up"
-        login = "v1/auth/login"
-        add_tag = "v1/tag"
+    client, pg, _ = setup
 
     email, password = "image-uploader@vutr.io", "123123123"
 
@@ -47,23 +20,13 @@ async def test_add_tags(setup_pg):
         data={"username": email, "password": password},
     )
 
-    if response.status_code == 400:
-        response = client.post(
-            API.login,
-            data={"username": email, "password": password},
-        )
-
     data = response.json()
     auth = AuthResponse(**data)
+    headers = {"Authorization": f"Bearer {auth.access_token}"}
 
     # Add tags
     tags = ["hello", "world"]
-
-    response = client.post(
-        API.add_tag,
-        headers={"Authorization": f"Bearer {auth.access_token}"},
-        json={"tags": tags},
-    )
+    response = client.post(API.add_tag, headers=headers, json={"tags": tags})
 
     assert response.status_code == 200
     data = AddTagsResponse(**response.json())
@@ -78,14 +41,6 @@ async def test_add_tags(setup_pg):
     assert count == 2
 
     # Add empty tags
-    response = client.post(
-        API.add_tag,
-        headers={"Authorization": f"Bearer {auth.access_token}"},
-        json={"tags": ["", "", "---------------"]},
-    )
-
+    invalid_tags = ["", "", "--", "#-"]
+    response = client.post(API.add_tag, headers=headers, json={"tags": invalid_tags})
     assert response.status_code == 400
-
-    # cleanup
-    await pg.c.fetch("DELETE FROM users WHERE email = $1", email)
-    await pg.c.executemany("DELETE FROM tags WHERE name = $1", [("hello",), ("world",)])
