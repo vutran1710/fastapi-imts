@@ -11,6 +11,10 @@ $ pipenv run dev
 ```
 
 ## System overview
+
+This is a FastAPI example application, made for future used as a template/starting point to develop more complex applications.
+The app is made to storing/searching images with relevant tags.
+
 ### Components
 1. **FastAPI** backend
 1. **PostgreSQL** for data persistence
@@ -134,3 +138,9 @@ $ pipenv run test
 
 
 Coverage report format is set as `html`. After having finish the test run, go to *htmlcov/index.html* to view test report.
+
+
+## TODO
+- [ ] Provide Dockerfile
+- [ ] Add tags for existing image
+- [ ] Stress-testing and optimizing if needed
