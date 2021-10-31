@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import List, Optional, Union
 from uuid import UUID, uuid1, uuid4
 
-from asyncpg import Connection, connect
-
 import repository.postgres.queries as PsqlQueries
+from asyncpg import Connection, connect
 from libs.utils import convert_string_to_uuid
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User
@@ -138,9 +137,9 @@ class Postgres:
         self,
         tags: List[str],
         limit: int = 5,
+        offset: int = 0,
         from_time=datetime.fromtimestamp(0),
         to_time=datetime.now(),
-        offset=0,
     ) -> List[TaggedImage]:
         tag_param = [(None, t) for t in tags]
         records = await self.q.SEARCH_TAGGED_IMAGES_BY_TAGS(  # type: ignore

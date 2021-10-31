@@ -1,7 +1,9 @@
 """Testing authentication flow of App
 """
-from logzero import logger as log
+from random import sample
+from uuid import uuid1
 
+from logzero import logger as log
 from model.http import AuthResponse, GetImageResponse, UploadImageResponse
 
 from .fixtures import API, pytestmark, setup  # noqa
@@ -72,11 +74,16 @@ async def test_image_upload(setup):  # noqa
 
     # Test get image by id
     tags = ["foo", "bar", "nono"]
-    response = client.get(API.get_image + str(tagged.id), headers=headers)
+    params = {"image_id": str(tagged.id)}
+    response = client.get(API.get_image, headers=headers, params=params)
 
     assert response.status_code == 200
     log.info(image)
-    image: GetImageResponse = GetImageResponse(**response.json())
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) == 1
+
+    image: GetImageResponse = GetImageResponse(**data[0])
     assert image.id == tagged.id
     assert image.name == image.name
     assert str(image.uploaded_by) == auth.user_id
@@ -85,5 +92,31 @@ async def test_image_upload(setup):  # noqa
     assert image.created_at
 
     # Getting an invalid image id
-    response = client.get(API.get_image + "invalid-image-id", headers=headers)
+    params = {"image_id": "invalid-id"}
+    response = client.get(API.get_image, params=params, headers=headers)
+    assert response.status_code == 422
+
+    params = {"image_id": uuid1()}
+    response = client.get(API.get_image, params=params, headers=headers)
     assert response.status_code == 404
+
+    # Upload multi images:
+    tags = ["foo", "bar", "nono", "hello", "world", "goodbye", "heaven"]
+
+    for _ in range(20):
+        sample_tags = ",".join(sample(tags, 3))
+        data = {"tags": sample_tags}
+        response = client.post(
+            API.upload_image, headers=headers, data=data, files=files
+        )
+
+    # search
+    params = {"tags": "foo,bar,hello", "limit": 3}
+    response = client.get(API.get_image, headers=headers, params=params)
+    assert response.status_code == 200
+    data = response.json()
+    log.info(data)
+
+    assert len(data) == 3
+    for item in data:
+        assert GetImageResponse(**item)

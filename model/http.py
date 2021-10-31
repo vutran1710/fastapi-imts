@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import AnyHttpUrl, BaseModel
-
 from libs.utils import validate_tag
+from pydantic import AnyHttpUrl, BaseModel
 
 from .enums import Provider
 

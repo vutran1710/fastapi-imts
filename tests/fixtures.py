@@ -2,7 +2,6 @@ import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
 from fastapi.testclient import TestClient
-
 from main import app
 from repository.minio import Minio
 from repository.postgres import Postgres
@@ -39,5 +38,6 @@ class API:
 
     upload_image = "v1/image"
     get_image = "v1/image/"
+    search_image = "v1/image/search"
 
     add_tag = "v1/tag"

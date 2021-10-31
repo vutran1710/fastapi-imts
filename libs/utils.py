@@ -1,10 +1,9 @@
 from re import findall
-from typing import Callable, Optional, Type, TypeVar
+from typing import Callable, List, Optional, Type, TypeVar, Union
 from uuid import UUID, uuid1
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
-
 from settings import settings
 
 T = TypeVar("T")
@@ -75,3 +74,12 @@ def validate_tag(tag: str) -> bool:
     invalid = findall(invalid_pattern, tag)
 
     return bool(valid and len(valid) == 1 and not invalid)
+
+
+def fix_tags(tags: Union[List[str], str, None]) -> List[str]:
+    if not tags:
+        return []
+
+    tag_list = tags.split(",") if isinstance(tags, str) else tags
+    valid_tags_only = [t.lower() for t in tag_list if validate_tag(t)]
+    return valid_tags_only
