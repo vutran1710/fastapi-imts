@@ -10,7 +10,7 @@ from model.postgres import Image, Tag, TaggedImage, User
 from settings import Settings
 
 
-class PreparedQuery:
+class PreparedStm:
     """Turn all raw queries into prepared-statements"""
 
     async def prepare(self, conn: Connection):
@@ -34,7 +34,7 @@ class PreparedQuery:
 
 
 class Postgres:
-    def __init__(self, conn: Connection, queries: PreparedQuery):
+    def __init__(self, conn: Connection, queries: PreparedStm):
         self.c = conn
         self.q = queries
 
@@ -47,7 +47,7 @@ class Postgres:
             host=st.PG_HOST,
             port=st.PG_PORT,
         )
-        q = PreparedQuery()
+        q = PreparedStm()
         await q.prepare(conn)
         return cls(conn, q)
 

@@ -2,6 +2,7 @@ import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
 from fastapi.testclient import TestClient
+
 from main import app
 from repository.minio import Minio
 from repository.postgres import Postgres
