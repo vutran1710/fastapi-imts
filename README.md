@@ -66,8 +66,9 @@ $ pipenv run dev
 
 ...and go to http://localhost:8000/docs
 
-#### Features details
-1. User registration and authentication with both **email/password** or using social-login with **Facebook** and **Google**
+--
+
+User registration and authentication with both **email/password** or using social-login with **Facebook** and **Google**
 
 | Prefix  | Endpoint       | Method | Params | Authenticated | Data                      | Description                    |
 |---------|----------------|--------|--------|---------------|---------------------------|--------------------------------|
@@ -79,9 +80,21 @@ $ pipenv run dev
 
 
 
-1. Image upload, fetching, searching
+Image upload, fetching, searching
 
 | Prefix   | Endpoint       | Method | Params                                      | Authenticated | Data                   | Description                                 |
 |----------|----------------|--------|---------------------------------------------|---------------|------------------------|---------------------------------------------|
 | v1/image |                | POST   | NO                                          | YES           | FormData[image, tags]  | Upload image file, and tags                 |
 |          | /              | GET    | image_id, limit, offset, from_time, to_time | YES           |                        | Get a single image or fetch multiple images |
+
+
+
+Tag creation
+
+| Prefix | Endpoint | Method | Params | Authenticated | Data            | Description                 |
+|--------|----------|--------|--------|---------------|-----------------|-----------------------------|
+| v1/tag |          | POST   | NO     | YES           | {tag: string[]} | Upload image file, and tags |
+
+
+## User/API-consumer tracking
+Authenticated User or API-consumer will have their every sent request info save to **MongoDB** > **tracking_users** collection for future statistic / analysing
