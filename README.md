@@ -98,3 +98,24 @@ Tag creation
 
 ## User/API-consumer tracking
 Authenticated User or API-consumer will have their every sent request info save to **MongoDB** > **tracking_users** collection for future statistic / analysing
+
+
+## Development Guideline
+
+### Writing code, linting & format
+- Code format complies with **Black**. Auto-format everything with..
+```
+pipenv run format
+```
+
+- **Radon** is used to ensure high readability, in conjunction with **flake8** complex level (maximum  4). Check for code-complexity using...
+```
+pipenv run flake
+```
+
+- **Imports** are arranged automatically with **isort**
+
+- Strict typing with **mypy**. Check for typing errors with
+```
+pipenv run type
+```
