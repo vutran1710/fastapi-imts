@@ -1,5 +1,19 @@
 # Image-Tagged-System
 
+- [Setup](#setup)
+- [System overview](#system-overview)
+  - [Components](#components)
+  - [Persistent data schema design](#persistent-data-schema-design)
+    - [User](#user)
+    - [Images](#images)
+    - [Tags](#tags)
+    - [Tagged](#tagged)
+  - [Features & API Endpoints](#features--api-endpoints)
+- [User/API-consumer tracking](#userapi-consumer-tracking)
+- [Development Guideline](#development-guideline)
+  - [Writing code, linting & format](#writing-code-linting--format)
+  - [Testing, code-coverage](#testing-code-coverage)
+- [TODO](#todo)
 
 ## Setup
 Copy **docker-local.env** to your own **.env** file, installing project dependencies and start docker-compose.
