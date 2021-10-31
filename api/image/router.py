@@ -3,6 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
+
 from libs.dependencies import jwt_guard, user_tracking
 from libs.exceptions import ImageException
 from libs.utils import fix_tags, make_storage_key, validate_image_file
@@ -75,9 +76,11 @@ async def upload_image(
     storage_key = make_storage_key(image.filename)
     minio.save_image(storage_key, image.file)
 
-    if not tags:
+    fixed_tags = fix_tags(tags)
+
+    if not fix_tags:
         saved_image: Image = await pg.save_image(
-            image.filename, storage_key, user.user_id
+            image.filename, storage_key, str(user.user_id)
         )
         return UploadImageResponse(
             id=saved_image.id,
@@ -86,9 +89,8 @@ async def upload_image(
             created_at=saved_image.created_at,
         )
 
-    fixed_tags = fix_tags(tags)
     tagged_image: TaggedImage = await pg.save_tagged_image(
-        image.filename, storage_key, user.user_id, fixed_tags
+        image.filename, storage_key, str(user.user_id), fixed_tags
     )
     return UploadImageResponse(
         id=tagged_image.image.id,

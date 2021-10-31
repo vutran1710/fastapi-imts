@@ -5,6 +5,7 @@ from random import sample
 from uuid import UUID, uuid4
 
 from logzero import logger as log
+
 from model.auth import AuthenticatedUser
 from model.metrics import UserTracking
 from repository.metric_collector import Collections, MetricCollector

@@ -1,8 +1,9 @@
 from datetime import datetime
 
+from motor.motor_asyncio import AsyncIOMotorClient
+
 from model.auth import AuthenticatedUser
 from model.metrics import UserTracking
-from motor.motor_asyncio import AsyncIOMotorClient
 from settings import Settings
 
 
@@ -13,9 +14,9 @@ class Collections:
 class MetricCollector:
     """For simplicity sake, use MongoDB to collect metrics"""
 
-    def __init__(self, conn: AsyncIOMotorClient, db: str):
+    def __init__(self, conn: AsyncIOMotorClient):
         self.c = conn
-        self.db = conn[db]
+        self.db = conn.get_default_database()
 
     @classmethod
     async def init(cls, st: Settings):
@@ -23,7 +24,7 @@ class MetricCollector:
             st.MONGO_CONNECTION_STRING,
             serverSelectionTimeoutMS=5000,
         )
-        return cls(client, "imts-mongo")
+        return cls(client)
 
     async def healthz(self) -> bool:
         """Check if a connection has been established"""
