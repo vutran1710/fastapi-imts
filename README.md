@@ -50,3 +50,38 @@ $ pipenv run dev
 | tag         | integer     | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Tags(id) table   |
 | image       | uuid1       | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Images(id) table |
 | created_at  | timestamp   | NOW            | NO          |                    |                  | upload time             |
+
+
+- Refer to **Pydantic Model** in *model/postgres.py*
+
+
+
+
+### Features & API Endpoints
+FastAPI provides Swagger with OpenAPI. To use the API, simply run the backend with command..
+
+```
+$ pipenv run dev
+```
+
+...and go to http://localhost:8000/docs
+
+#### Features details
+1. User registration and authentication with both **email/password** or using social-login with **Facebook** and **Google**
+
+| Prefix  | Endpoint       | Method | Params | Authenticated | Data                      | Description                    |
+|---------|----------------|--------|--------|---------------|---------------------------|--------------------------------|
+| v1/auth | /sign-up       | POST   | NO     | NO            | FormData[email, password] | Sign up using email & password |
+|         | /login         | POST   | NO     | NO            | FormData[email, password] | Login using email & password   |
+|         | /refresh-token | GET    | NO     | YES           |                           | Exchange JWT Token             |
+|         | /facebook      | POST   | NO     | NO            | Facebook login payload    | Signup/Login with facebook     |
+|         | /google        | POST   | NO     | NO            | Google login payload      | Signup/Login with Google       |
+
+
+
+1. Image upload, fetching, searching
+
+| Prefix   | Endpoint       | Method | Params                                      | Authenticated | Data                   | Description                                 |
+|----------|----------------|--------|---------------------------------------------|---------------|------------------------|---------------------------------------------|
+| v1/image |                | POST   | NO                                          | YES           | FormData[image, tags]  | Upload image file, and tags                 |
+|          | /              | GET    | image_id, limit, offset, from_time, to_time | YES           |                        | Get a single image or fetch multiple images |
