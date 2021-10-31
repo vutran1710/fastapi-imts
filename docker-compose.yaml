@@ -36,7 +36,15 @@ services:
     volumes:
       - ./.persist/minio:/data
 
-networks:
-  default:
-    external: true
-    name: image-tagged-system-network
+  mongo:
+    container_name: imts-mongo
+    image: bitnami/mongodb:4.4
+    ports:
+      - 27017:27017
+    environment:
+      - MONGODB_USERNAME=imts
+      - MONGODB_PASSWORD=abc123
+      - MONGODB_DATABASE=imts-mongo
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - ./.persist/mongo:/bitnami/mongodb

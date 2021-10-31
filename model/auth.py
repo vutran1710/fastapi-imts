@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, validator
 
@@ -21,7 +22,7 @@ class FBLoginData(BaseModel):
 
 class AuthenticatedUser(BaseModel):
     name: Optional[str]
-    user_id: str
+    user_id: UUID
     email: str
     provider: Provider
 

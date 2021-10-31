@@ -6,7 +6,6 @@ from uuid import uuid4
 import pytest
 import pytest_asyncio  # noqa
 from fastapi import HTTPException
-
 from libs.dependencies import create_auth_response, jwt_guard
 from model.auth import AuthenticatedUser
 from model.http import AuthResponse
@@ -32,7 +31,7 @@ def test_jwt_guard_and_auth_response():
     assert auth_data.expire_at and isinstance(auth_data.expire_at, int)
     assert auth_data.token_type == "bearer"
     assert auth_data.provider == "app"
-    assert auth_data.user_id == str(standard_user.id)
+    assert auth_data.user_id == standard_user.id
 
     verified_user = jwt_guard(auth_data.access_token)
     assert isinstance(verified_user, AuthenticatedUser)
@@ -47,7 +46,7 @@ def test_jwt_guard_and_auth_response():
     assert auth_data.expire_at and isinstance(auth_data.expire_at, int)
     assert auth_data.token_type == "bearer"
     assert auth_data.provider == "app"
-    assert auth_data.user_id == str(standard_user.id)
+    assert auth_data.user_id == standard_user.id
 
     # Invalid token handling
     with pytest.raises(HTTPException) as excepinfo:

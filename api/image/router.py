@@ -3,8 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
-
-from libs.dependencies import jwt_guard
+from libs.dependencies import jwt_guard, user_tracking
 from libs.exceptions import ImageException
 from libs.utils import fix_tags, make_storage_key, validate_image_file
 from model.auth import AuthenticatedUser
@@ -108,7 +107,7 @@ async def get_specific_image(
     to_time: datetime = datetime.now(),
     limit: int = 5,
     offset: int = 0,
-    user: AuthenticatedUser = Depends(jwt_guard),
+    user: AuthenticatedUser = Depends(user_tracking),
     minio: Minio = Depends(get_minio),
     pg: Postgres = Depends(get_pg),
 ):

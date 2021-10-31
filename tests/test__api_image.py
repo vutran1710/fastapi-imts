@@ -4,7 +4,6 @@ from random import sample
 from uuid import uuid1
 
 from logzero import logger as log
-
 from model.http import AuthResponse, GetImageResponse, UploadImageResponse
 
 from .fixtures import API, pytestmark, setup  # noqa
@@ -16,7 +15,7 @@ async def test_image_upload(setup):  # noqa
     - Get image using image-key
     - Search image
     """
-    client, pg, minio = setup
+    client, pg, minio, _ = setup
 
     email, password = "image-uploader@vutr.io", "123123123"
 
@@ -87,7 +86,7 @@ async def test_image_upload(setup):  # noqa
     image: GetImageResponse = GetImageResponse(**data[0])
     assert image.id == tagged.id
     assert image.name == image.name
-    assert str(image.uploaded_by) == auth.user_id
+    assert image.uploaded_by == auth.user_id
     assert image.tags and len(image.tags) == 3
     assert image.url
     assert image.created_at

@@ -2,8 +2,9 @@ import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
 from fastapi.testclient import TestClient
-
 from main import app
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from repository.metric_collector import Collections, MetricCollector
 from repository.minio import Minio
 from repository.postgres import Postgres
 from settings import settings
@@ -16,10 +17,15 @@ async def setup():
     client = TestClient(app)
     pg = await Postgres.init(settings)
     minio = Minio.init(settings)
+    mc = await MetricCollector.init(settings)
 
     assert isinstance(pg.c, Connection)
+    assert isinstance(mc.c, AsyncIOMotorClient)
+    assert isinstance(mc.db, AsyncIOMotorDatabase)
 
-    yield client, pg, minio
+    yield client, pg, minio, mc
+
+    await mc.db[Collections.USERS].delete_many({})
 
     await pg.c.execute(
         """

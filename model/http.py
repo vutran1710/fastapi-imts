@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import AnyHttpUrl, BaseModel
-
 from libs.utils import fix_tags
+from pydantic import AnyHttpUrl, BaseModel
 
 from .enums import Provider
 
@@ -34,7 +33,7 @@ class FBUserInfo(BaseModel):
 
 
 class AuthResponse(BaseModel):
-    user_id: str
+    user_id: UUID
     email: str
     provider: Provider
     access_token: str

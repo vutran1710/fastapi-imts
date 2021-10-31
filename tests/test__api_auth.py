@@ -12,7 +12,7 @@ async def test_sign_up_and_login(setup):  # noqa
     - Refresh Token
     - Social-login is not tested for now
     """
-    client, pg, _ = setup
+    client, pg, *_ = setup
 
     invalid_password = "1"
     email, password = "somemail@vutr.io", "123123123"

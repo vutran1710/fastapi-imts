@@ -17,6 +17,7 @@ python-jose = "*"
 python-multipart = "*"
 google-api-python-client = "*"
 passlib = "*"
+motor = "*"
 
 [dev-packages]
 black = "*"

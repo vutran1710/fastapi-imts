@@ -1,9 +1,5 @@
 ## Setup
 
-Create docker network
-```
-$ docker network create -d bridge image-tagged-system-network
-```
 
 Installing things
 ```
