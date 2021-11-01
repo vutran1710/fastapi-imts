@@ -184,6 +184,7 @@ TOTAL                              598     52    91%
 
 
 ## TODO
+- [ ] Change user'id and image'id to int
 - [ ] Provide **Dockerfile**
 - [ ] Provide API for adding tags for existing image
 - [ ] Create *Index* on uploaded_by of table **Images** to support searching images by user
