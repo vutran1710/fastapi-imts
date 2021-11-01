@@ -101,8 +101,8 @@ async def upload_image(
     )
 
 
-@router.get("/", response_model=List[GetImageResponse])
-async def get_specific_image(
+@router.get("/find", response_model=List[GetImageResponse])
+async def find_images(
     image_id: Optional[UUID] = None,
     tags: Optional[str] = None,
     from_time: datetime = datetime.fromtimestamp(0),

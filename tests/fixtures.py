@@ -2,9 +2,8 @@ import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
 from fastapi.testclient import TestClient
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-
 from main import app
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from repository.metric_collector import Collections, MetricCollector
 from repository.minio import Minio
 from repository.postgres import Postgres
@@ -45,7 +44,6 @@ class API:
     refresh = "v1/auth/refresh-token"
 
     upload_image = "v1/image"
-    get_image = "v1/image/"
-    search_image = "v1/image/search"
+    find_images = "v1/image/find"
 
     add_tag = "v1/tag"
