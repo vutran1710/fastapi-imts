@@ -16,10 +16,29 @@
 - [TODO](#todo)
 
 ## Setup
-Copy **docker-local.env** to your own **.env** file, installing project dependencies and start docker-compose.
+
+First, you need an **.env** file to run the project locally. Copy **docker-local.env** to your own **.env** file:
 ```
 $ cp docker-local.env .env
-$ pipenv install --dev --pre
+```
+
+Then, you can run the app in development mode w/o docker, either:
+1. Build the app with dockerfile
+```
+# Start docker-compose first
+$ docker-compose up -d
+
+# Build the app
+$ docker build -t imts-app .
+
+# Before running, update the env file to correct
+# environment variables with proper service name in docker-compose.yaml
+$ docker run --env-file .env -p 5000:5000 imts-app
+```
+
+2. Or, installing the dependencies in your local machine. Note that **pipenv** is required.
+```
+$ pipenv install --dev
 $ docker-compose up -d
 $ pipenv run dev
 ```
@@ -184,10 +203,10 @@ TOTAL                              598     52    91%
 
 
 ## TODO
+- [x] Provide **Dockerfile**
 - [ ] Change user'id to int
 - [ ] Add logout API to invalidate user token
 - [ ] Refactor to use *timestamp* for searching image by date time
-- [ ] Provide **Dockerfile**
 - [ ] Provide API for adding tags for existing image
 - [ ] Create *Index* on uploaded_by of table **Images** to support searching images by user
 - [ ] Refactor Query Response following *snowflake* pattern to provide better pagination
