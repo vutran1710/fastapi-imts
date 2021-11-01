@@ -245,12 +245,12 @@ async def test_search_image(setup_pg):
 
     # Search image by tags
     tags_to_search = ["foo", "bar"]
-    from_time, to_time = datetime(2000, 10, 10), datetime(2018, 10, 10)
+    from_date, to_date = datetime(2000, 10, 10), datetime(2018, 10, 10)
     search_images = await pg.search_image_by_tags(
         tags_to_search,
         limit=3,
-        from_time=from_time,
-        to_time=to_time,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     assert len(search_images) == 3
@@ -262,7 +262,7 @@ async def test_search_image(setup_pg):
         assert len(set(image_tags + tags_to_search)) < (
             len(image_tags) + len(tags_to_search)
         )
-        assert from_time <= img.created_at <= to_time
+        assert from_date <= img.created_at <= to_date
 
     last_row_id = search_images[-1].image.id
     log.info("> Limit=3, Offset=0, Page=0 ==> last row %s", last_row_id)
@@ -272,8 +272,8 @@ async def test_search_image(setup_pg):
         tags_to_search,
         limit=3,
         offset=2,
-        from_time=from_time,
-        to_time=to_time,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     assert len(search_images) == 3

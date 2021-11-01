@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import List, Optional
 from uuid import UUID
 
@@ -27,8 +27,8 @@ async def find_image_by_id(pg: Postgres, minio: Minio, image_id: UUID):
 
 async def find_images_by_tags_datetime(
     tags: List[str],
-    from_time: datetime,
-    to_time: datetime,
+    from_date: date,
+    to_date: date,
     limit: int,
     offset: int,
     pg: Postgres,
@@ -38,8 +38,8 @@ async def find_images_by_tags_datetime(
         tags,
         limit=limit,
         offset=offset,
-        from_time=from_time,
-        to_time=to_time,
+        from_date=from_date,
+        to_date=to_date,
     )
 
     result = []
@@ -105,8 +105,8 @@ async def upload_image(
 async def find_images(
     image_id: Optional[UUID] = None,
     tags: Optional[str] = None,
-    from_time: datetime = datetime.fromtimestamp(0),
-    to_time: datetime = datetime.now(),
+    from_date: date = datetime.fromtimestamp(0).date(),
+    to_date: date = datetime.now().date(),
     limit: int = 5,
     offset: int = 0,
     user: AuthenticatedUser = Depends(user_tracking),
@@ -126,7 +126,7 @@ async def find_images(
         return []
 
     resp = await find_images_by_tags_datetime(
-        valid_tags, from_time, to_time, limit, offset, pg, minio
+        valid_tags, from_date, to_date, limit, offset, pg, minio
     )
 
     return resp

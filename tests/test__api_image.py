@@ -1,5 +1,6 @@
 """Testing authentication flow of App
 """
+from datetime import datetime, timezone
 from random import sample
 from uuid import uuid1
 
@@ -112,7 +113,12 @@ async def test_image_upload(setup):  # noqa
         )
 
     # Find multi images using tags
-    params = {"tags": "foo,bar,hello", "limit": 3}
+    params = {
+        "tags": "foo,bar,hello",
+        "limit": 3,
+        "from_date": str(datetime(2015, 10, 10).date()),
+        "to_date": str(datetime(2021, 12, 12).date()),
+    }
     response = client.get(API.find_images, headers=headers, params=params)
     assert response.status_code == 200
     data = response.json()

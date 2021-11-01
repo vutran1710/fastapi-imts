@@ -140,12 +140,12 @@ class Postgres:
         tags: List[str],
         limit: int = 5,
         offset: int = 0,
-        from_time=datetime.fromtimestamp(0),
-        to_time=datetime.now(),
+        from_date=datetime.fromtimestamp(0),
+        to_date=datetime.now(),
     ) -> List[TaggedImage]:
         tag_param = [(None, t) for t in tags]
         records = await self.q.SEARCH_TAGGED_IMAGES_BY_TAGS(  # type: ignore
-            tag_param, from_time, to_time, limit, offset
+            tag_param, from_date, to_date, limit, offset
         )
 
         images = [Image(**r) for r in records]
