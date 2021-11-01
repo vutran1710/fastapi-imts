@@ -100,10 +100,10 @@ User registration and authentication with both **email/password** or using socia
 
 Image upload, fetching, searching
 
-| Prefix   | Endpoint       | Method | Params                                      | Authenticated | Data                   | Description                                 |
-|----------|----------------|--------|---------------------------------------------|---------------|------------------------|---------------------------------------------|
-| v1/image |                | POST   | NO                                          | YES           | FormData[image, tags]  | Upload image file, and tags                 |
-|          | /              | GET    | image_id, limit, offset, from_time, to_time | YES           |                        | Get a single image or fetch multiple images |
+| Prefix   | Endpoint | Method | Params                                      | Authenticated | Data                  | Description                                 |
+|----------|----------|--------|---------------------------------------------|---------------|-----------------------|---------------------------------------------|
+| v1/image |          | POST   | NO                                          | YES           | FormData[image, tags] | Upload image file, and tags                 |
+|          | /find    | GET    | image_id, limit, offset, from_time, to_time | YES           |                       | Get a single image or fetch multiple images |
 
 
 
