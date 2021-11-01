@@ -4,8 +4,7 @@ from random import sample
 from uuid import uuid1
 
 from logzero import logger as log
-
-from model.http import AuthResponse, GetImageResponse, UploadImageResponse
+from model.http import AuthResponse, FindImageResponse, UploadImageResponse
 
 from .fixtures import API, pytestmark, setup  # noqa
 
@@ -73,10 +72,10 @@ async def test_image_upload(setup):  # noqa
     response = client.post(API.upload_image, headers=headers, files=invalid_files)
     assert response.status_code == 400
 
-    # Test get image by id
+    # Test find image by id
     tags = ["foo", "bar", "nono"]
     params = {"image_id": str(tagged.id)}
-    response = client.get(API.get_image, headers=headers, params=params)
+    response = client.get(API.find_images, headers=headers, params=params)
 
     assert response.status_code == 200
     log.info(image)
@@ -84,7 +83,7 @@ async def test_image_upload(setup):  # noqa
     assert isinstance(data, list)
     assert len(data) == 1
 
-    image: GetImageResponse = GetImageResponse(**data[0])
+    image: FindImageResponse = FindImageResponse(**data[0])
     assert image.id == tagged.id
     assert image.name == image.name
     assert image.uploaded_by == auth.user_id
@@ -92,13 +91,13 @@ async def test_image_upload(setup):  # noqa
     assert image.url
     assert image.created_at
 
-    # Getting an invalid image id
+    # Test find invalid image using invalid id
     params = {"image_id": "invalid-id"}
-    response = client.get(API.get_image, params=params, headers=headers)
+    response = client.get(API.find_images, params=params, headers=headers)
     assert response.status_code == 422
 
     params = {"image_id": uuid1()}
-    response = client.get(API.get_image, params=params, headers=headers)
+    response = client.get(API.find_images, params=params, headers=headers)
     assert response.status_code == 404
 
     # Upload multi images:
@@ -111,13 +110,13 @@ async def test_image_upload(setup):  # noqa
             API.upload_image, headers=headers, data=data, files=files
         )
 
-    # search
+    # Find multi images using tags
     params = {"tags": "foo,bar,hello", "limit": 3}
-    response = client.get(API.get_image, headers=headers, params=params)
+    response = client.get(API.find_images, headers=headers, params=params)
     assert response.status_code == 200
     data = response.json()
     log.info(data)
 
     assert len(data) == 3
     for item in data:
-        assert GetImageResponse(**item)
+        assert FindImageResponse(**item)

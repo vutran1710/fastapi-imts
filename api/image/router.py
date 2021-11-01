@@ -3,12 +3,11 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
-
-from libs.dependencies import jwt_guard, user_tracking
+from libs.dependencies import user_tracking
 from libs.exceptions import ImageException
 from libs.utils import fix_tags, make_storage_key, validate_image_file
 from model.auth import AuthenticatedUser
-from model.http import GetImageResponse, UploadImageResponse
+from model.http import FindImageResponse, UploadImageResponse
 from model.postgres import Image, TaggedImage
 from repository import Minio, Postgres, get_minio, get_pg
 
@@ -22,7 +21,7 @@ async def find_image_by_id(pg: Postgres, minio: Minio, image_id: UUID):
     tags = await pg.get_image_tags(image.id)
     url = minio.get_image(image.storage_key)
 
-    return GetImageResponse(**image.dict(), url=url, tags=tags)
+    return FindImageResponse(**image.dict(), url=url, tags=tags)
 
 
 async def find_images_by_tags_datetime(
@@ -33,7 +32,7 @@ async def find_images_by_tags_datetime(
     offset: int,
     pg: Postgres,
     minio: Minio,
-) -> List[GetImageResponse]:
+) -> List[FindImageResponse]:
     images = await pg.search_image_by_tags(
         tags,
         limit=limit,
@@ -47,7 +46,7 @@ async def find_images_by_tags_datetime(
     for img in images:
         url = minio.get_image(img.image.storage_key)
         tag_names = [t.name for t in img.tags]
-        resp = GetImageResponse(**img.image.dict(), url=url, tags=tag_names)
+        resp = FindImageResponse(**img.image.dict(), url=url, tags=tag_names)
         result.append(resp)
 
     return result
@@ -58,7 +57,7 @@ router = APIRouter()
 
 @router.post("", response_model=UploadImageResponse)
 async def upload_image(
-    user: AuthenticatedUser = Depends(jwt_guard),
+    user: AuthenticatedUser = Depends(user_tracking),
     image: UploadFile = File(...),
     tags: str = Form(None),
     minio: Minio = Depends(get_minio),
@@ -101,8 +100,8 @@ async def upload_image(
     )
 
 
-@router.get("/", response_model=List[GetImageResponse])
-async def get_specific_image(
+@router.get("/find", response_model=List[FindImageResponse])
+async def find_images(
     image_id: Optional[UUID] = None,
     tags: Optional[str] = None,
     from_time: datetime = datetime.fromtimestamp(0),

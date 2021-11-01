@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends
-
-from libs.dependencies import jwt_guard
+from libs.dependencies import user_tracking
 from libs.exceptions import TagException
 from model.auth import AuthenticatedUser
 from model.http import AddTagsRequest, AddTagsResponse
@@ -13,7 +12,7 @@ router = APIRouter()
 async def add_tags(
     payload: AddTagsRequest,
     pg: Postgres = Depends(get_pg),
-    _: AuthenticatedUser = Depends(jwt_guard),
+    _: AuthenticatedUser = Depends(user_tracking),
 ):
     if not payload.tags:
         raise TagException.INVALID_TAGS

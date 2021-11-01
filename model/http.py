@@ -50,7 +50,7 @@ class UploadImageResponse(BaseModel):
     tags: List[str] = []
 
 
-class GetImageResponse(BaseModel):
+class FindImageResponse(BaseModel):
     id: UUID
     name: str
     created_at: datetime
