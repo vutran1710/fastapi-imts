@@ -34,7 +34,7 @@ async def test_initialize(setup):
     log.info("Log's id collected = %s", doc_id)
     assert doc_id
 
-    get_log = await mc.db[Collections.USERS].find_one({"_id": doc_id})
+    get_log = await mc.db[Collections.TRACKING_USERS].find_one({"_id": doc_id})
     assert get_log
     assert get_log["request_url"] == request_url
     assert get_log["email"] == user.email
@@ -46,6 +46,6 @@ async def test_initialize(setup):
     doc_id = await mc.collect_user(user, request_url, extra=metadata)
     assert doc_id
 
-    get_log = await mc.db[Collections.USERS].find_one({"_id": doc_id})
+    get_log = await mc.db[Collections.TRACKING_USERS].find_one({"_id": doc_id})
     assert get_log
     assert get_log["extra"] == metadata

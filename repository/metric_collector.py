@@ -8,7 +8,7 @@ from settings import Settings
 
 
 class Collections:
-    USERS = "tracking_users"
+    TRACKING_USERS = "tracking_users"
 
 
 class MetricCollector:
@@ -49,6 +49,6 @@ class MetricCollector:
         if extra and isinstance(extra, dict):
             tracking_data.update({"extra": extra})
 
-        doc = await self.db[Collections.USERS].insert_one(tracking_data)
+        doc = await self.db[Collections.TRACKING_USERS].insert_one(tracking_data)
 
         return doc.inserted_id

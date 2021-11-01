@@ -26,7 +26,7 @@ async def setup():
 
     yield client, pg, minio, mc
 
-    await mc.db[Collections.USERS].delete_many({})
+    await mc.db[Collections.TRACKING_USERS].delete_many({})
 
     await pg.c.execute(
         """
