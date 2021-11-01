@@ -187,6 +187,8 @@ TOTAL                              598     52    91%
 - [ ] Provide **Dockerfile**
 - [ ] Provide API for adding tags for existing image
 - [ ] Create *Index* on uploaded_by of table **Images** to support searching images by user
+- [ ] Refactor Query Response following *snowflake* pattern to provide better pagination
 - [ ] Provide *migration* script
 - [ ] Provide *pytest-postgresql* for better testing
+- [ ] Allow making images private by author
 - [ ] Stress-testing and optimizing if needed
