@@ -63,11 +63,11 @@ The app is made to storing/searching images with relevant tags.
 | name        | varchar     | NULL           | NO          |            | UNIQUE           | tag name       |
 
 #### Tagged
-| COLUMN_NAME | COLUMN_TYPE | COLUMN_DEFAULT | IS_NULLABLE | COLUMN_KEY         | EXTRA/CONSTRAINT | COLUMN_COMMENT          |
-|-------------|-------------|----------------|-------------|--------------------|------------------|-------------------------|
-| tag         | integer     | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Tags(id) table   |
-| image       | uuid1       | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Images(id) table |
-| created_at  | timestamp   | NOW            | NO          |                    |                  | upload time             |
+| COLUMN_NAME | COLUMN_TYPE | COLUMN_DEFAULT | IS_NULLABLE | COLUMN_KEY         | EXTRA/CONSTRAINT | COLUMN_COMMENT                                                          |
+|-------------|-------------|----------------|-------------|--------------------|------------------|-------------------------------------------------------------------------|
+| tag         | integer     | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Tags(id) table                                                   |
+| image       | uuid1       | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Images(id) table                                                 |
+| created_at  | timestamp   | NOW            | NO          |                    |                  | upload time, same as image's created_at, to help boost find-image query |
 
 
 - Refer to **Pydantic Model** in *model/postgres.py*
