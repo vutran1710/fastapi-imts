@@ -3,9 +3,9 @@ from tempfile import SpooledTemporaryFile
 from typing import IO, Any, Union
 
 from logzero import logger as log
-from minio import Minio as MinioSDK
-
 from settings import Settings
+
+from minio import Minio as MinioSDK
 
 
 class Minio:

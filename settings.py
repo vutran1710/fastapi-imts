@@ -23,11 +23,6 @@ class Settings(BaseSettings):
     STAGE: Stage = "development"
     CORS_ORIGINS_ALLOWED: str = "*"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.STAGE == "development":
-            self.STORAGE_HOST += ":9000"
-
     class Config:
         env_file = getenv("DOTENV_FILE_PATH", ".env")
 
