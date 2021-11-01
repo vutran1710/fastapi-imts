@@ -51,8 +51,8 @@ The app is made to storing/searching images with relevant tags.
 | COLUMN_NAME | COLUMN_TYPE | COLUMN_DEFAULT | IS_NULLABLE | COLUMN_KEY | EXTRA/CONSTRAINT | COLUMN_COMMENT                      |
 |-------------|-------------|----------------|-------------|------------|------------------|-------------------------------------|
 | id          | uuid1       | NULL           | NO          | PRI        |                  | ID                                  |
-| name        | varchar     | NULL           | NO          |            | UNIQUE           | image's original file name          |
-| storage_key | varchar     | NULL           | NO          |            |                  | Key used to store image on S3/Minio |
+| name        | varchar     | NULL           | NO          |            |                  | image's original file name          |
+| storage_key | varchar     | NULL           | NO          |            | UNIQUE           | Key used to store image on S3/Minio |
 | created_at  | timestamp   | NOW            | NO          |            |                  | upload time                         |
 | uploaded_by | uuid4       | NULL           | YES         | FOREIGN    |                  | Ref to user table                   |
 
@@ -65,8 +65,8 @@ The app is made to storing/searching images with relevant tags.
 #### Tagged
 | COLUMN_NAME | COLUMN_TYPE | COLUMN_DEFAULT | IS_NULLABLE | COLUMN_KEY         | EXTRA/CONSTRAINT | COLUMN_COMMENT                                                          |
 |-------------|-------------|----------------|-------------|--------------------|------------------|-------------------------------------------------------------------------|
-| tag         | integer     | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Tags(id) table                                                   |
-| image       | uuid1       | NULL           | NO          | FOREIGN, COMPOSITE | UNIQUE           | Ref to Images(id) table                                                 |
+| tag         | integer     | NULL           | NO          | FOREIGN, COMPOSITE |                  | Ref to Tags(id) table                                                   |
+| image       | uuid1       | NULL           | NO          | FOREIGN, COMPOSITE |                  | Ref to Images(id) table                                                 |
 | created_at  | timestamp   | NOW            | NO          |                    |                  | upload time, same as image's created_at, to help boost find-image query |
 
 
