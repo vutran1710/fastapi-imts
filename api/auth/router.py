@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-
-from libs.dependencies import create_auth_response, crypt, jwt_guard
+from libs.dependencies import create_auth_response, crypt, user_tracking
 from libs.exceptions import AuthException
 from libs.utils import initialize_model, validate_google_user
 from model.auth import (AuthenticatedUser, FBLoginData, GoogleLoginData,
@@ -52,7 +51,7 @@ async def login_with_username_password(
 
 @router.get("/refresh-token", response_model=AuthResponse)
 async def refresh_token(
-    user: AuthenticatedUser = Depends(jwt_guard),
+    user: AuthenticatedUser = Depends(user_tracking),
     pg: Postgres = Depends(get_pg),
 ):
     if user.provider != "app":
