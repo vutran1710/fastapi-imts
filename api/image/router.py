@@ -3,6 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
+
 from libs.dependencies import user_tracking
 from libs.exceptions import ImageException
 from libs.utils import fix_tags, make_storage_key, validate_image_file

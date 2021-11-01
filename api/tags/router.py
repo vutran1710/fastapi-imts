@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+
 from libs.dependencies import user_tracking
 from libs.exceptions import TagException
 from model.auth import AuthenticatedUser

@@ -15,23 +15,24 @@ class PreparedStm:
     """Turn all raw queries into prepared-statements"""
 
     async def prepare(self, conn: Connection):
-        for a in dir(PsqlQueries):
-            if a.isupper():
-                query: str = getattr(PsqlQueries, a)
+        query_names = [q for q in dir(PsqlQueries) if q.isupper()]
 
-                async def __get_fetch__(query_statement: str):
-                    prepared = await conn.prepare(query_statement)
+        for name in query_names:
+            query_stm: str = getattr(PsqlQueries, name)
 
-                    async def wrapped(*args, method="fetch"):
-                        nonlocal conn, prepared
-                        fetcher = getattr(prepared, method)
-                        result = await fetcher(*args)
-                        return result
+            async def __get_fetch__(query_statement: str):
+                prepared = await conn.prepare(query_statement)
 
-                    return wrapped
+                async def wrapped(*args, method="fetch"):
+                    nonlocal conn, prepared
+                    fetcher = getattr(prepared, method)
+                    result = await fetcher(*args)
+                    return result
 
-                method = await __get_fetch__(query)
-                setattr(self, a, method)
+                return wrapped
+
+            method = await __get_fetch__(query_stm)
+            setattr(self, name, method)
 
 
 class Postgres:

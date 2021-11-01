@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+
 from libs.dependencies import create_auth_response, crypt, user_tracking
 from libs.exceptions import AuthException
 from libs.utils import initialize_model, validate_google_user
