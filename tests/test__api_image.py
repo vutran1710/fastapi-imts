@@ -4,7 +4,7 @@ from random import sample
 from uuid import uuid1
 
 from logzero import logger as log
-from model.http import AuthResponse, GetImageResponse, UploadImageResponse
+from model.http import AuthResponse, FindImageResponse, UploadImageResponse
 
 from .fixtures import API, pytestmark, setup  # noqa
 
@@ -83,7 +83,7 @@ async def test_image_upload(setup):  # noqa
     assert isinstance(data, list)
     assert len(data) == 1
 
-    image: GetImageResponse = GetImageResponse(**data[0])
+    image: FindImageResponse = FindImageResponse(**data[0])
     assert image.id == tagged.id
     assert image.name == image.name
     assert image.uploaded_by == auth.user_id
@@ -119,4 +119,4 @@ async def test_image_upload(setup):  # noqa
 
     assert len(data) == 3
     for item in data:
-        assert GetImageResponse(**item)
+        assert FindImageResponse(**item)
