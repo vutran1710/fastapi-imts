@@ -81,6 +81,7 @@ image_ids AS (
         FROM tagged
         WHERE tag in (SELECT id FROM tag_items)
         AND created_at >= $4 AND created_at <= $5
+        ORDER BY created_at DESC
         LIMIT $2
         OFFSET $3
 ),
@@ -90,7 +91,7 @@ image_tag_ids AS (
         WHERE image in (SELECT image FROM image_ids)
 ),
 image_tags AS (
-        SELECT image, string_agg(tags.name, ', ') as tags
+        SELECT image, string_agg(tags.name, ',') as tags
         FROM image_tag_ids
         LEFT JOIN tags
         ON image_tag_ids.tag = tags.id
