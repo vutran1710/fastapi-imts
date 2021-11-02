@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
+
 from settings import settings
 
 T = TypeVar("T")

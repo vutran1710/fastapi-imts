@@ -3,8 +3,9 @@ import pytest_asyncio  # noqa
 from aioredis import Redis as RedisConnection
 from asyncpg import Connection
 from fastapi.testclient import TestClient
-from main import app
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
+from main import app
 from repository.metric_collector import Collections, MetricCollector
 from repository.minio import Minio
 from repository.postgres import Postgres

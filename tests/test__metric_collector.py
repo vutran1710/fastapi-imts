@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from logzero import logger as log
+
 from model.auth import AuthenticatedUser
 from model.metrics import UserTracking
 from repository.metric_collector import Collections

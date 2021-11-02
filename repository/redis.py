@@ -1,7 +1,8 @@
 from datetime import timedelta
 
-from aioredis import Redis, from_url
-from logzero import logger
+from aioredis import Redis as RedisConnection
+from aioredis import from_url
+
 from settings import Settings
 
 
@@ -10,9 +11,7 @@ class Keys:
 
 
 class Redis:
-    c: Redis
-
-    def __init__(self, conn: Redis):
+    def __init__(self, conn: RedisConnection):
         self.c = conn
 
     @classmethod
@@ -28,12 +27,12 @@ class Redis:
         pipe = self.c.pipeline(transaction=True)
 
         key = f"{Keys.INVALID_TOKEN}___{token}"
-        p = pipe.set(key, "invalid")
+        pipe.set(key, "invalid")
 
         if ttl:
-            p = p.expire(key, ttl.seconds)
+            pipe.expire(key, ttl.seconds)
 
-        await p.execute()
+        await pipe.execute()
 
     async def is_token_invalid(self, token) -> bool:
         key = f"{Keys.INVALID_TOKEN}___{token}"

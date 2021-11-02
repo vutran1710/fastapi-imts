@@ -3,10 +3,11 @@ from typing import Union
 from fastapi import Depends, Request
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from passlib.context import CryptContext
+
 from model.auth import AuthenticatedUser
 from model.http import AuthResponse
 from model.postgres import User
-from passlib.context import CryptContext
 from repository import MetricCollector, Redis, get_mc, get_redis
 from settings import settings
 

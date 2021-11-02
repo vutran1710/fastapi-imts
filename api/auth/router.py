@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
+
 from libs.dependencies import auth_guard, create_auth_response, crypt
 from libs.exceptions import AuthException
 from libs.utils import initialize_model, validate_google_user
