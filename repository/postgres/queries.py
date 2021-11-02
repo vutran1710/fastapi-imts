@@ -7,15 +7,15 @@ FIND_USER_BY_EMAIL = "SELECT * FROM users WHERE email = $1"
 FIND_USER_BY_ID = "SELECT * FROM users WHERE id = $1"
 
 REGISTER_NEW_USER_APP = """
-INSERT INTO users (id, email, password, provider)
-VALUES ($1, $2, $3, 'app')
+INSERT INTO users (email, password, provider)
+VALUES ($1, $2, 'app')
 ON CONFLICT DO NOTHING
 RETURNING *
 """
 
 REGISTER_NEW_USER_SOCIAL = """
-INSERT INTO users (id, email, token, expire_at, provider)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO users (email, token, expire_at, provider)
+VALUES ($1, $2, $3, $4)
 RETURNING *
 """
 

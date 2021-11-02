@@ -204,8 +204,8 @@ TOTAL                              598     52    91%
 
 ## TODO
 - [x] Provide **Dockerfile**
-- [x] Refactor to use *date* for searching image by date time
-- [ ] Change user'id to int
+- [x] Refactor to use *date* for searching image instead of datetime
+- [x] Change user_id to int
 - [ ] Add logout API to invalidate user token
 - [ ] Provide API for adding tags for existing image
 - [ ] Create *Index* on uploaded_by of table **Images** to support searching images by user

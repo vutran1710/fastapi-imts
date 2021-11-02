@@ -7,7 +7,7 @@ CREATE TYPE "AuthProviders" AS ENUM (
 );
 
 CREATE TABLE "users" (
-  "id" uuid PRIMARY KEY,
+  "id" SERIAL PRIMARY KEY,
   "created_at" timestamp DEFAULT current_timestamp,
   "email" varchar UNIQUE NOT NULL,
   "password" varchar,
@@ -27,7 +27,7 @@ CREATE TABLE "images" (
   "name" varchar NOT NULL,
   "storage_key" varchar UNIQUE NOT NULL,
   "created_at" timestamp DEFAULT current_timestamp,
-  "uploaded_by" uuid NULL
+  "uploaded_by" int NULL
 );
 
 CREATE TABLE "tags" (
