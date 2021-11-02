@@ -1,7 +1,6 @@
 """Unit testing FastAPI custom dependencies
 """
 from datetime import datetime
-from uuid import uuid4
 
 import pytest
 import pytest_asyncio  # noqa
@@ -18,7 +17,7 @@ pytestmark = pytest.mark.asyncio
 def test_jwt_guard_and_auth_response():
     """JwtGuard shall handle user'token verification"""
     standard_user = User(
-        id=uuid4(),
+        id=1,
         email="myemail@vutr.io",
         password="powerful-password",
         created_at=datetime.now(),
