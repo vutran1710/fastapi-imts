@@ -102,6 +102,7 @@ image_tags_full_info AS (
         FROM image_tags
         LEFT JOIN images
         ON image_tags.image = images.id
+        ORDER BY images.created_at DESC
 )
 SELECT * FROM image_tags_full_info
 """
