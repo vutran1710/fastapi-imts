@@ -3,7 +3,6 @@
 from datetime import datetime
 
 from logzero import logger as log
-
 from model.auth import AuthenticatedUser
 from model.metrics import UserTracking
 from repository.metric_collector import Collections
@@ -15,7 +14,12 @@ async def test_initialize(setup):  # noqa
     mc = setup[3]
     assert (await mc.healthz()) is True
     user = AuthenticatedUser(
-        name="messi", user_id=2, email="me@vutr.io", provider="app"
+        name="messi",
+        user_id=2,
+        email="me@vutr.io",
+        provider="app",
+        token="some-tokken",
+        exp=datetime.now(),
     )
 
     # Test saving simple tracking data
