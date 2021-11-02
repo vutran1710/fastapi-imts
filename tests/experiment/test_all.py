@@ -97,6 +97,7 @@ SELECT * FROM image_tags_full_info
 """
 
 
+@pytest.mark.skip(reason="activate only when exprimenting with large data set")
 async def test_query_for_optimization():
     """Target:
     1Million images
