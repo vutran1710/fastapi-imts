@@ -74,3 +74,35 @@ async def test_sign_up_and_login(setup):  # noqa
     assert response.status_code == 200
     data = response.json()
     AuthResponse(**data)
+
+
+async def test_logout(setup):  # noqa
+    client, pg, *_ = setup
+
+    email, password = "somemail@vutr.io", "123123123"
+
+    response = client.post(
+        API.signup,
+        data={"username": email, "password": password},
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+    auth = AuthResponse(**data)
+
+    # Logout
+    response = client.get(
+        API.logout,
+        headers={"Authorization": f"Bearer {auth.access_token}"},
+    )
+
+    assert response.status_code == 200
+
+    # Attempt to exchange new token should fail
+    response = client.get(
+        API.refresh,
+        headers={"Authorization": f"Bearer {auth.access_token}"},
+    )
+
+    assert response.status_code == 401

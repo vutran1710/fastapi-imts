@@ -50,6 +50,7 @@ class API:
     signup = "v1/auth/sign-up"
     login = "v1/auth/login"
     refresh = "v1/auth/refresh-token"
+    logout = "v1/auth/logout"
 
     upload_image = "v1/image"
     find_images = "v1/image/find"
