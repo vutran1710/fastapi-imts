@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, validator
@@ -24,6 +25,8 @@ class AuthenticatedUser(BaseModel):
     user_id: int
     email: str
     provider: Provider
+    token: str
+    exp: datetime
 
 
 class SimpleUserCredential(BaseModel):
