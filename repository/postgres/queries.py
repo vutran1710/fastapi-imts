@@ -70,39 +70,39 @@ RIGHT JOIN items
 ON tags.id = items.tag
 """
 
-SEARCH_TAGGED_IMAGES_BY_TAGS = """
-WITH tag_ids AS (
-        SELECT id
+SEARCH_TAGGED_IMAGES = """
+WITH tag_items AS (
+        SELECT id, name
         FROM tags
         WHERE name IN (SELECT r.name FROM unnest($1::tags[]) as r)
-     ),
-
-     tag_image_ids AS (
-        SELECT image, created_at
+),
+image_ids AS (
+        SELECT image
         FROM tagged
-        WHERE tag IN (SELECT id FROM tag_ids)
-        AND created_at >= $2 AND created_at <= $3
-        ORDER BY created_at DESC LIMIT $4 OFFSET $5
-     )
-SELECT images.*
-FROM images
-RIGHT JOIN tag_image_ids ON tag_image_ids.image = images.id
-ORDER BY images.created_at DESC
-"""
-
-GET_TAGS_FOR_MULTIPLE_IMAGES = """
-WITH image_tag AS (
-         SELECT *
-         FROM tagged
-         WHERE image
-         IN (SELECT r.image FROM unnest($1::tagged[]) as r)
-     ),
-     image_tag_name AS (
-         SELECT image_tag.image, tags.name
-         FROM image_tag
-         LEFT JOIN tags ON image_tag.tag = tags.id
-     )
-SELECT image, string_agg(name, ',') AS tags
-FROM image_tag_name
-GROUP BY image
+        WHERE tag in (SELECT id FROM tag_items)
+        AND created_at >= $4 AND created_at <= $5
+        ORDER BY created_at DESC
+        LIMIT $2
+        OFFSET $3
+),
+image_tag_ids AS (
+        SELECT image, tag
+        FROM tagged
+        WHERE image in (SELECT image FROM image_ids)
+),
+image_tags AS (
+        SELECT image, string_agg(tags.name, ',') as tags
+        FROM image_tag_ids
+        LEFT JOIN tags
+        ON image_tag_ids.tag = tags.id
+        GROUP BY image
+),
+image_tags_full_info AS (
+        SELECT images.*, image_tags.tags
+        FROM image_tags
+        LEFT JOIN images
+        ON image_tags.image = images.id
+        ORDER BY images.created_at DESC
+)
+SELECT * FROM image_tags_full_info
 """

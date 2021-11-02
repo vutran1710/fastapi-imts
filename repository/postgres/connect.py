@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import List, Optional, Union
 from uuid import UUID, uuid4
 
-from asyncpg import Connection, connect
-
 import repository.postgres.queries as PsqlQueries
+from asyncpg import Connection, connect
 from libs import convert_string_to_uuid
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User
@@ -144,23 +143,20 @@ class Postgres:
         to_date=datetime.now(),
     ) -> List[TaggedImage]:
         tag_param = [(None, t) for t in tags]
-        records = await self.q.SEARCH_TAGGED_IMAGES_BY_TAGS(  # type: ignore
-            tag_param, from_date, to_date, limit, offset
-        )
+        query_params = (tag_param, limit, offset, from_date, to_date)
+        records = await self.q.SEARCH_TAGGED_IMAGES(*query_params)  # type: ignore
 
-        images = [Image(**r) for r in records]
-        values = [(None, i.id, None) for i in images]
-        records = await self.q.GET_TAGS_FOR_MULTIPLE_IMAGES(values)  # type: ignore
+        result = []
 
-        image_tags = {}
+        for r in records:
+            image = Image(**r)
+            tag_strings = r["tags"].split(",")
+            img_tags = [Tag(name=t) for t in tag_strings]
+            tagged_img = TaggedImage(
+                image=image,
+                tags=img_tags,
+                created_at=image.created_at,
+            )
+            result.append(tagged_img)
 
-        for record in records:
-            image_id, tags = record["image"], record["tags"].split(",")
-            image_tags.update({image_id: [Tag(name=t) for t in tags]})
-
-        tagged_image = [
-            TaggedImage(image=i, tags=image_tags[i.id], created_at=i.created_at)
-            for i in images
-        ]
-
-        return tagged_image
+        return result
