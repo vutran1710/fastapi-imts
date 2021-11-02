@@ -1,13 +1,15 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from libs.dependencies import create_auth_response, crypt, user_tracking
+from libs.dependencies import auth_guard, create_auth_response, crypt
 from libs.exceptions import AuthException
 from libs.utils import initialize_model, validate_google_user
 from model.auth import (AuthenticatedUser, FBLoginData, GoogleLoginData,
                         SimpleUserCredential)
 from model.http import AuthResponse
-from repository import Http, Postgres, get_http, get_pg
+from repository import Http, Postgres, Redis, get_http, get_pg, get_redis
 
 router = APIRouter()
 
@@ -52,7 +54,7 @@ async def login_with_username_password(
 
 @router.get("/refresh-token", response_model=AuthResponse)
 async def refresh_token(
-    user: AuthenticatedUser = Depends(user_tracking),
+    user: AuthenticatedUser = Depends(auth_guard),
     pg: Postgres = Depends(get_pg),
 ):
     if user.provider != "app":
@@ -97,3 +99,15 @@ async def auth_with_facebook(
     )
 
     return create_auth_response(user)
+
+
+@router.get("/logout", response_model=str)
+async def invalidate_token_and_logout(
+    user: AuthenticatedUser = Depends(auth_guard),
+    rd: Redis = Depends(get_redis),
+):
+    now = datetime.now(timezone.utc).timestamp()
+    exp = user.exp.timestamp()
+    delta = timedelta(seconds=exp - now)
+    await rd.invalidate_token(user.token, ttl=delta)
+    return "OK"

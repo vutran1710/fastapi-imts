@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 
-from libs.dependencies import user_tracking
+from libs.dependencies import auth_guard
 from libs.exceptions import ImageException
 from libs.utils import fix_tags, make_storage_key, validate_image_file
 from model.auth import AuthenticatedUser
@@ -58,7 +58,7 @@ router = APIRouter()
 
 @router.post("", response_model=UploadImageResponse)
 async def upload_image(
-    user: AuthenticatedUser = Depends(user_tracking),
+    user: AuthenticatedUser = Depends(auth_guard),
     image: UploadFile = File(...),
     tags: str = Form(None),
     minio: Minio = Depends(get_minio),
@@ -109,7 +109,7 @@ async def find_images(
     to_date: date = datetime.now().date(),
     limit: int = 5,
     offset: int = 0,
-    user: AuthenticatedUser = Depends(user_tracking),
+    user: AuthenticatedUser = Depends(auth_guard),
     minio: Minio = Depends(get_minio),
     pg: Postgres = Depends(get_pg),
 ):

@@ -17,7 +17,7 @@ async def test_image_upload(setup):  # noqa
     - Get image using image-key
     - Search image
     """
-    client, pg, minio, _ = setup
+    client, pg, minio, *_ = setup
 
     email, password = "image-uploader@vutr.io", "123123123"
 
