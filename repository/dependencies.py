@@ -6,7 +6,7 @@ from .minio import Minio
 from .postgres import Postgres
 from .redis import Redis
 
-pg, minio, mc = None, None, None
+pg, minio, mc, rd = None, None, None, None
 
 
 async def get_pg():
@@ -57,11 +57,20 @@ async def get_mc():
     yield mc
 
 
+async def get_redis():
+    global rd
+
+    if st.STAGE == "test":
+        test_rd = await Redis.init(st)
+        yield test_rd
+        return
+
+    if not rd:
+        rd = await Redis.init(st)
+
+    yield rd
+
+
 async def get_http():
     http = Http()
     yield http
-
-
-async def get_redis():
-    redis = await Redis.init(st)
-    yield redis
