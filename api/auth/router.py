@@ -3,13 +3,13 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from libs.dependencies import auth_guard, create_auth_response, crypt
-from libs.exceptions import AuthException
-from libs.utils import initialize_model, validate_google_user
+from dependencies import (auth_guard, create_auth_response, get_http, get_pg,
+                          get_redis)
+from libs import AuthException, Crypt, initialize_model, validate_google_user
 from model.auth import (AuthenticatedUser, FBLoginData, GoogleLoginData,
                         SimpleUserCredential)
 from model.http import AuthResponse
-from repository import Http, Postgres, Redis, get_http, get_pg, get_redis
+from repository import Http, Postgres, Redis
 
 router = APIRouter()
 
@@ -25,7 +25,7 @@ async def sign_up_with_username_password(
     if not cred:
         raise AuthException.INVALID_CREDENTIAL
 
-    user = await pg.save_user(cred.email, crypt.hash(cred.password))
+    user = await pg.save_user(cred.email, Crypt.hash(cred.password))
 
     if not user:
         raise AuthException.DUPLICATE_USER
@@ -44,7 +44,7 @@ async def login_with_username_password(
     if not user:
         raise AuthException.INVALID_EMAIL_PWD
 
-    valid_pwd = crypt.verify(pwd, user.password)
+    valid_pwd = Crypt.verify(pwd, user.password)
 
     if not valid_pwd:
         raise AuthException.INVALID_EMAIL_PWD

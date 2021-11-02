@@ -3,21 +3,16 @@ from typing import Union
 from fastapi import Depends, Request
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
 
+from libs import Jwt
 from model.auth import AuthenticatedUser
 from model.http import AuthResponse
 from model.postgres import User
-from repository import MetricCollector, Redis, get_mc, get_redis
+from repository import MetricCollector, Redis
 from settings import settings
 
-from .jwt import Jwt
+from .get_repos import get_mc, get_redis
 
-crypt = CryptContext(
-    schemes=["pbkdf2_sha256"],
-    default="pbkdf2_sha256",
-    pbkdf2_sha256__default_rounds=30000,
-)
 jwt = Jwt(settings)
 scheme = OAuth2PasswordBearer(tokenUrl="/v1/auth/login")
 

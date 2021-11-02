@@ -10,7 +10,7 @@ from asyncpg import Connection
 from faker import Faker
 from logzero import logger as log
 
-from libs.utils import make_storage_key
+from libs import make_storage_key
 from model.postgres import Image, Tag, TaggedImage, User
 from repository.postgres import Postgres
 from settings import settings

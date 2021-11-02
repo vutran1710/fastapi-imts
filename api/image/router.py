@@ -4,13 +4,13 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 
-from libs.dependencies import auth_guard
-from libs.exceptions import ImageException
-from libs.utils import fix_tags, make_storage_key, validate_image_file
+from dependencies import auth_guard, get_minio, get_pg
+from libs import (ImageException, fix_tags, make_storage_key,
+                  validate_image_file)
 from model.auth import AuthenticatedUser
 from model.http import FindImageResponse, UploadImageResponse
 from model.postgres import Image, TaggedImage
-from repository import Minio, Postgres, get_minio, get_pg
+from repository import Minio, Postgres
 
 
 async def find_image_by_id(pg: Postgres, minio: Minio, image_id: UUID):
