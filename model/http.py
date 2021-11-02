@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import AnyHttpUrl, BaseModel
 
-from libs.utils import fix_tags
+from libs import fix_tags
 
 from .enums import Provider
 

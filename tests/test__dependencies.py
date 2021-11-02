@@ -7,7 +7,7 @@ import pytest
 import pytest_asyncio  # noqa
 from fastapi import HTTPException
 
-from libs.dependencies import create_auth_response, jwt_guard
+from dependencies import create_auth_response, jwt_guard
 from model.auth import AuthenticatedUser
 from model.http import AuthResponse
 from model.postgres import User

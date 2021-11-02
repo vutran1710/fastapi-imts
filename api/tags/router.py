@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from libs.dependencies import auth_guard
-from libs.exceptions import TagException
+from dependencies import auth_guard, get_pg
+from libs import TagException
 from model.auth import AuthenticatedUser
 from model.http import AddTagsRequest, AddTagsResponse
-from repository import Postgres, get_pg
+from repository import Postgres
 
 router = APIRouter()
 

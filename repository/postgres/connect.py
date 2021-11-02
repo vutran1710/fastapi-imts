@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from asyncpg import Connection, connect
 
 import repository.postgres.queries as PsqlQueries
-from libs.utils import convert_string_to_uuid
+from libs import convert_string_to_uuid
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User
 from settings import Settings

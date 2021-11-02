@@ -1,10 +1,5 @@
+from repository import Http, MetricCollector, Minio, Postgres, Redis
 from settings import settings as st
-
-from .http import Http
-from .metric_collector import MetricCollector
-from .minio import Minio
-from .postgres import Postgres
-from .redis import Redis
 
 pg, minio, mc, rd = None, None, None, None
 
