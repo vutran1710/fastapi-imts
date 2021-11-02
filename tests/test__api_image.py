@@ -1,11 +1,10 @@
 """Testing authentication flow of App
 """
 from datetime import datetime, timezone
-from random import sample
+from random import choice
 from uuid import uuid4
 
 from logzero import logger as log
-
 from model.http import AuthResponse, FindImageResponse, UploadImageResponse
 
 from .fixtures import API, pytestmark, setup  # noqa
@@ -105,8 +104,8 @@ async def test_image_upload(setup):  # noqa
     # Upload multi images:
     tags = ["foo", "bar", "nono", "hello", "world", "goodbye", "heaven"]
 
-    for _ in range(20):
-        sample_tags = ",".join(sample(tags, 3))
+    for tag in tags:
+        sample_tags = tag
         data = {"tags": sample_tags}
         response = client.post(
             API.upload_image, headers=headers, data=data, files=files
