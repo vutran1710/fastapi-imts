@@ -53,3 +53,7 @@ ALTER TABLE "tagged" ADD FOREIGN KEY ("image") REFERENCES "images" ("id") ON DEL
 ALTER TABLE "tagged" ADD FOREIGN KEY ("tag") REFERENCES "tags" ("id") ON DELETE CASCADE;
 
 CREATE INDEX ON "tagged" ("image");
+
+CREATE INDEX ON "tagged" ("tag");
+
+CREATE INDEX idx_tagged_created_at ON tagged (created_at);
