@@ -176,10 +176,12 @@ Coverage report format is set as `html`. After having finish the test run, go to
 ```
 Name                             Stmts   Miss  Cover
 ----------------------------------------------------
-api/auth/router.py                  58     13    78%
+api/auth/router.py                  57     13    77%
 api/image/router.py                 51      3    94%
 api/tags/router.py                  13      0   100%
-libs/dependencies.py                38      0   100%
+dependencies/auth.py                37      0   100%
+dependencies/get_repos.py           38     14    63%
+libs/crypt.py                        2      0   100%
 libs/exceptions.py                  13      0   100%
 libs/jwt.py                         23      0   100%
 libs/utils.py                       49      2    96%
@@ -189,7 +191,6 @@ model/enums.py                       2      0   100%
 model/http.py                       50      6    88%
 model/metrics.py                     7      0   100%
 model/postgres.py                   26      0   100%
-repository/dependencies.py          42     14    67%
 repository/http.py                  16      9    44%
 repository/metric_collector.py      25      0   100%
 repository/minio.py                 28      2    93%
@@ -198,7 +199,7 @@ repository/postgres/queries.py      13      0   100%
 repository/redis.py                 27      0   100%
 settings.py                         26      0   100%
 ----------------------------------------------------
-TOTAL                              631     49    92%
+TOTAL                              627     49    92%
 ```
 
 
