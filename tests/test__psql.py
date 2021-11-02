@@ -8,9 +8,8 @@ import pytest
 import pytest_asyncio  # noqa
 from asyncpg import Connection
 from faker import Faker
-from logzero import logger as log
-
 from libs import make_storage_key
+from logzero import logger as log
 from model.postgres import Image, Tag, TaggedImage, User
 from repository.postgres import Postgres
 from settings import settings
@@ -265,7 +264,7 @@ async def test_search_image(setup_pg):
         assert from_date <= img.created_at <= to_date
 
     last_row_id = search_images[-1].image.id
-    log.info("> Limit=3, Offset=0, Page=0 ==> last row %s", last_row_id)
+    log.info("> Limit=3, Offset=0 ==> last row %s", last_row_id)
 
     # Pagination with offset
     search_images = await pg.search_image_by_tags(
@@ -276,10 +275,8 @@ async def test_search_image(setup_pg):
         to_date=to_date,
     )
 
-    assert len(search_images) == 3
-
     first_row_id = search_images[0].image.id
-    log.info("> Limit=3, Offset=2, Page=1 ==> first row %s", first_row_id)
+    log.info("> Limit=3, Offset=2 ==> first row %s", first_row_id)
 
     # Overlapping
     assert last_row_id == first_row_id
