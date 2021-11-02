@@ -207,7 +207,7 @@ TOTAL                              631     49    92%
 - [x] Refactor to use *date* for searching image instead of datetime
 - [x] Change user_id to int
 - [x] Add logout API to invalidate user token
-- [ ] Separate dependencies
+- [x] Separate dependencies
 - [ ] Provide API for adding tags for existing image
 - [ ] Create *Index* on uploaded_by of table **Images** to support searching images by user
 - [ ] Refactor Query Response following *snowflake* pattern to provide better pagination
