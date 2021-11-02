@@ -2,8 +2,9 @@ from datetime import datetime
 from typing import List, Optional, Union
 from uuid import UUID, uuid4
 
-import repository.postgres.queries as PsqlQueries
 from asyncpg import Connection, connect
+
+import repository.postgres.queries as PsqlQueries
 from libs import convert_string_to_uuid
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User

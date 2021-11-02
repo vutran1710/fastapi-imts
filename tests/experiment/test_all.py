@@ -4,8 +4,9 @@ from time import time
 import pytest
 import pytest_asyncio  # noqa
 from faker import Faker
-from libs import make_storage_key
 from logzero import logger as log  # noqa
+
+from libs import make_storage_key
 from repository.postgres import Postgres
 from settings import settings
 

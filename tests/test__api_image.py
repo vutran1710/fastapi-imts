@@ -5,6 +5,7 @@ from random import choice
 from uuid import uuid4
 
 from logzero import logger as log
+
 from model.http import AuthResponse, FindImageResponse, UploadImageResponse
 
 from .fixtures import API, pytestmark, setup  # noqa
