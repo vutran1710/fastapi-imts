@@ -2,7 +2,7 @@
 """
 from datetime import datetime, timezone
 from random import sample
-from uuid import uuid1
+from uuid import uuid4
 
 from logzero import logger as log
 
@@ -98,7 +98,7 @@ async def test_image_upload(setup):  # noqa
     response = client.get(API.find_images, params=params, headers=headers)
     assert response.status_code == 422
 
-    params = {"image_id": uuid1()}
+    params = {"image_id": uuid4()}
     response = client.get(API.find_images, params=params, headers=headers)
     assert response.status_code == 404
 
