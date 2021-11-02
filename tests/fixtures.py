@@ -3,9 +3,8 @@ import pytest_asyncio  # noqa
 from aioredis import Redis as RedisConnection
 from asyncpg import Connection
 from fastapi.testclient import TestClient
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-
 from main import app
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from repository.metric_collector import Collections, MetricCollector
 from repository.minio import Minio
 from repository.postgres import Postgres
@@ -29,6 +28,9 @@ async def setup():
     assert isinstance(rd.c, RedisConnection)
 
     assert (await rd.ping()) is True
+
+    current_db_name = await pg.c.fetchval(" SELECT current_database()")
+    assert "test" in current_db_name
 
     yield client, pg, minio, mc, rd
 
