@@ -56,4 +56,4 @@ CREATE INDEX ON "tagged" ("image");
 
 CREATE INDEX ON "tagged" ("tag");
 
-CREATE INDEX idx_tagged_created_at ON tagged (created_at);
+CREATE INDEX ON "tagged" ("created_at");
