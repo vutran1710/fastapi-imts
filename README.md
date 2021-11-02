@@ -177,7 +177,7 @@ Coverage report format is set as `html`. After having finish the test run, go to
 Name                             Stmts   Miss  Cover
 ----------------------------------------------------
 api/auth/router.py                  57     13    77%
-api/image/router.py                 51      3    94%
+api/image/router.py                 50      3    94%
 api/tags/router.py                  13      0   100%
 dependencies/auth.py                37      0   100%
 dependencies/get_repos.py           38     14    63%
@@ -195,11 +195,11 @@ repository/http.py                  16      9    44%
 repository/metric_collector.py      25      0   100%
 repository/minio.py                 28      2    93%
 repository/postgres/connect.py      86      0   100%
-repository/postgres/queries.py      13      0   100%
+repository/postgres/queries.py      12      0   100%
 repository/redis.py                 27      0   100%
 settings.py                         26      0   100%
 ----------------------------------------------------
-TOTAL                              627     49    92%
+TOTAL                              625     49    92%
 ```
 
 
@@ -209,10 +209,10 @@ TOTAL                              627     49    92%
 - [x] Change user_id to int
 - [x] Add logout API to invalidate user token
 - [x] Separate dependencies
+- [x] Stress-tested and optimized image-search query
 - [ ] Provide API for adding tags for existing image
 - [ ] Create *Index* on uploaded_by of table **Images** to support searching images by user
 - [ ] Refactor Query Response following *snowflake* pattern to provide better pagination
 - [ ] Provide *migration* script
 - [ ] Provide *pytest-postgresql* for better testing
 - [ ] Allow making images private by author
-- [ ] Stress-testing and optimizing if needed
