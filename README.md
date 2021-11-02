@@ -59,7 +59,7 @@ The app is made to storing/searching images with relevant tags.
 #### User
 | COLUMN_NAME | COLUMN_TYPE | COLUMN_DEFAULT | IS_NULLABLE | COLUMN_KEY | EXTRA/CONSTRAINT | COLUMN_COMMENT                 |
 |-------------|-------------|----------------|-------------|------------|------------------|--------------------------------|
-| id          | uuid4       | NULL           | NO          | PRI        |                  | ID                             |
+| id          | int         | NULL           | NO          | PRI        |                  | ID                             |
 | email       | varchar     | NULL           | NO          |            | UNIQUE           |                                |
 | password    | varchar     | NULL           | YES         |            |                  | Null if user uses social-login |
 | token       | varchar     | NULL           | YES         |            | UNIQUE           | for social-login only          |
@@ -73,7 +73,7 @@ The app is made to storing/searching images with relevant tags.
 | name        | varchar     | NULL           | NO          |            |                  | image's original file name          |
 | storage_key | varchar     | NULL           | NO          |            | UNIQUE           | Key used to store image on S3/Minio |
 | created_at  | timestamp   | NOW            | NO          |            |                  | upload time                         |
-| uploaded_by | uuid4       | NULL           | YES         | FOREIGN    |                  | Ref to user table                   |
+| uploaded_by | int         | NULL           | YES         | FOREIGN    |                  | Ref to user table                   |
 
 #### Tags
 | COLUMN_NAME | COLUMN_TYPE | COLUMN_DEFAULT | IS_NULLABLE | COLUMN_KEY | EXTRA/CONSTRAINT | COLUMN_COMMENT |
