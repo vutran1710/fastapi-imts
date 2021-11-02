@@ -1,6 +1,6 @@
 """Unit testing utility functions
 """
-from uuid import uuid1, uuid4
+from uuid import uuid4
 
 import pytest  # noqa
 import pytest_asyncio  # noqa
@@ -73,7 +73,7 @@ def test_validate_image():
 
 
 def test_string_uuid_conversion():
-    valid_id = uuid1()
+    valid_id = uuid4()
     str_uuid = str(valid_id)
     uuid_convert = convert_string_to_uuid(str_uuid)
 

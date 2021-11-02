@@ -2,7 +2,7 @@
 """
 from datetime import datetime
 from random import sample
-from uuid import UUID, uuid1
+from uuid import UUID, uuid4
 
 import pytest
 import pytest_asyncio  # noqa
@@ -158,7 +158,7 @@ async def test_save_and_get_image(setup_pg):
     non_exist = await pg.get_image("non-exist-image-key")
     assert non_exist is None
 
-    non_exist = await pg.get_image(uuid1())
+    non_exist = await pg.get_image(uuid4())
     assert non_exist is None
 
 

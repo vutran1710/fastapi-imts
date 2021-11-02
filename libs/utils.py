@@ -1,10 +1,9 @@
 from re import findall
 from typing import Callable, List, Optional, Type, TypeVar, Union
-from uuid import UUID, uuid1
+from uuid import UUID, uuid4
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
-
 from settings import settings
 
 T = TypeVar("T")
@@ -54,12 +53,12 @@ def validate_image_file(filename: str):
 
 def make_storage_key(image_name: str):
     """Guarantee uniqueness constraint of image_key"""
-    storage_key = f"{uuid1()}__{image_name}"
+    storage_key = f"{uuid4()}__{image_name}"
     return storage_key
 
 
 @trying()
-def convert_string_to_uuid(string: str, version=1):
+def convert_string_to_uuid(string: str, version=4):
     uuid_obj = UUID(string, version=version)
     return uuid_obj
 

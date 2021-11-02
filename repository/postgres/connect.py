@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Union
-from uuid import UUID, uuid1, uuid4
+from uuid import UUID, uuid4
 
 from asyncpg import Connection, connect
 
@@ -55,7 +55,7 @@ class Postgres:
 
     async def save_user(self, email: str, pwd: str) -> Optional[User]:
         """Register new user to database using email & password"""
-        args = (uuid4(), email, pwd)
+        args = (email, pwd)
         record = await self.q.REGISTER_NEW_USER_APP(*args, method="fetchrow")  # type: ignore
         return User(**record) if record else None
 
@@ -76,7 +76,7 @@ class Postgres:
         result = await self.q.FIND_USER_BY_EMAIL(email)  # type: ignore
 
         if not result:
-            args = (uuid4(), email, token, time, provider)
+            args = (email, token, time, provider)
             record = await self.q.REGISTER_NEW_USER_SOCIAL(*args, method="fetchrow")  # type: ignore
             return User(**record)
 
@@ -93,9 +93,9 @@ class Postgres:
         self,
         image_name: str,
         storage_key: str,
-        uploader: str,
+        uploader: int,
     ) -> Image:
-        args = (uuid1(), image_name, storage_key, uploader)
+        args = (uuid4(), image_name, storage_key, uploader)
         record = await self.q.INSERT_NEW_IMAGE(*args, method="fetchrow")  # type: ignore
         return Image(**record)
 
@@ -116,7 +116,7 @@ class Postgres:
         self,
         image_name: str,
         storage_key: str,
-        uploader: str,
+        uploader: int,
         tags: List[str],
     ) -> TaggedImage:
         image = await self.get_image(storage_key)

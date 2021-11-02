@@ -1,24 +1,21 @@
 """Unit testing the custom Postgres module
 """
 from datetime import datetime
-from random import sample
-from uuid import UUID, uuid4
 
 from logzero import logger as log
 
 from model.auth import AuthenticatedUser
 from model.metrics import UserTracking
-from repository.metric_collector import Collections, MetricCollector
-from settings import settings
+from repository.metric_collector import Collections
 
 from .fixtures import pytestmark, setup  # noqa
 
 
-async def test_initialize(setup):
+async def test_initialize(setup):  # noqa
     mc = setup[3]
     assert (await mc.healthz()) is True
     user = AuthenticatedUser(
-        name="messi", user_id=uuid4(), email="me@vutr.io", provider="app"
+        name="messi", user_id=2, email="me@vutr.io", provider="app"
     )
 
     # Test saving simple tracking data

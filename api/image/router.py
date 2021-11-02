@@ -80,7 +80,7 @@ async def upload_image(
 
     if not fix_tags:
         saved_image: Image = await pg.save_image(
-            image.filename, storage_key, str(user.user_id)
+            image.filename, storage_key, user.user_id
         )
         return UploadImageResponse(
             id=saved_image.id,
@@ -90,7 +90,7 @@ async def upload_image(
         )
 
     tagged_image: TaggedImage = await pg.save_tagged_image(
-        image.filename, storage_key, str(user.user_id), fixed_tags
+        image.filename, storage_key, user.user_id, fixed_tags
     )
     return UploadImageResponse(
         id=tagged_image.image.id,

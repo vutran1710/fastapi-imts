@@ -39,7 +39,7 @@ format = "black ."
 flake = "flake8 ."
 type = "mypy ."
 sort = "isort ."
-test = "pytest tests --maxfail=1 -v -s --cov=. --cov-report html"
+test = "pytest tests --maxfail=1 -v -s --cov=. --cov-report term"
 
 [pipenv]
 allow_prereleases = true

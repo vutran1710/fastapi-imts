@@ -8,7 +8,7 @@ from .enums import Provider
 
 
 class User(BaseModel):
-    id: UUID
+    id: int
     email: EmailStr
     password: Optional[str]
     token: Optional[str]
@@ -22,7 +22,7 @@ class Image(BaseModel):
     name: str
     created_at: datetime
     storage_key: str
-    uploaded_by: Optional[UUID]
+    uploaded_by: Optional[int]
 
 
 class Tag(BaseModel):

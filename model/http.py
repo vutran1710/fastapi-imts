@@ -34,7 +34,7 @@ class FBUserInfo(BaseModel):
 
 
 class AuthResponse(BaseModel):
-    user_id: UUID
+    user_id: int
     email: str
     provider: Provider
     access_token: str
@@ -45,7 +45,7 @@ class AuthResponse(BaseModel):
 class UploadImageResponse(BaseModel):
     id: UUID
     name: str
-    uploaded_by: Optional[UUID]
+    uploaded_by: Optional[int]
     created_at: datetime
     tags: List[str] = []
 
@@ -54,7 +54,7 @@ class FindImageResponse(BaseModel):
     id: UUID
     name: str
     created_at: datetime
-    uploaded_by: UUID
+    uploaded_by: int
     url: AnyHttpUrl
     tags: List[str] = []
 
