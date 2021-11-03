@@ -7,7 +7,7 @@ from .fixtures import API, pytestmark, setup  # noqa
 
 
 async def test_redis(setup):  # noqa
-    *_, rd = setup
+    rd = setup("rd")
 
     assert (await rd.ping()) is True
 
