@@ -1,13 +1,16 @@
+from os import environ
 from typing import List
 
 import pytest
 import pytest_asyncio  # noqa
+import pytz
 from aioredis import Redis as RedisConnection
 from asyncpg import Connection
 from fastapi.testclient import TestClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+
 from main import app
 from model.http import AuthResponse
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from repository.metric_collector import Collections, MetricCollector
 from repository.minio import Minio
 from repository.postgres import Postgres
@@ -21,6 +24,7 @@ pytestmark = pytest.mark.asyncio
 async def setup():
     # Create test App
     client = TestClient(app)
+    tz = pytz.timezone(environ["TZ"])
 
     # Setup data source connections
     pg = await Postgres.init(settings)
@@ -55,6 +59,8 @@ async def setup():
         "mc": mc,
         "rd": rd,
         "auth": auth,
+        "headers": {"Authorization": f"Bearer {auth.access_token}"},
+        "tz": tz,
     }
 
     def retrieve(*keys: List[str]):
@@ -90,6 +96,7 @@ class API:
     logout = "v1/auth/logout"
 
     upload_image = "v1/image"
-    find_images = "v1/image/find"
+    find_one_image = "v1/image/find_one"
+    find_many_images = "v1/image/find_many"
 
     add_tag = "v1/tag"
