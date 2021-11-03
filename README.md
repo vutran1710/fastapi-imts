@@ -188,18 +188,18 @@ libs/utils.py                       49      2    96%
 main.py                              9      0   100%
 model/auth.py                       29      0   100%
 model/enums.py                       2      0   100%
-model/http.py                       50      6    88%
+model/http.py                       57      7    88%
 model/metrics.py                     7      0   100%
-model/postgres.py                   26      0   100%
+model/postgres.py                   28      0   100%
 repository/http.py                  16      9    44%
 repository/metric_collector.py      25      0   100%
 repository/minio.py                 28      2    93%
-repository/postgres/connect.py      86      0   100%
-repository/postgres/queries.py      12      0   100%
+repository/postgres/connect.py      89      0   100%
+repository/postgres/queries.py      13      0   100%
 repository/redis.py                 27      0   100%
 settings.py                         26      0   100%
 ----------------------------------------------------
-TOTAL                              625     49    92%
+TOTAL                              638     50    92%
 ```
 
 
@@ -210,9 +210,9 @@ TOTAL                              625     49    92%
 - [x] Add logout API to invalidate user token
 - [x] Separate dependencies
 - [x] Stress-tested and optimized image-search query
+- [x] Create *Index* on uploaded_by of table **Images** to support searching images by user
+- [x] Refactor Query Response following *snowflake* pattern to provide better pagination
 - [ ] Provide API for adding tags for existing image
-- [ ] Create *Index* on uploaded_by of table **Images** to support searching images by user
-- [ ] Refactor Query Response following *snowflake* pattern to provide better pagination
 - [ ] Provide *migration* script
 - [ ] Provide *pytest-postgresql* for better testing
 - [ ] Allow making images private by author
