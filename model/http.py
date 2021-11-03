@@ -7,6 +7,7 @@ from pydantic import AnyHttpUrl, BaseModel
 from libs import fix_tags
 
 from .enums import Provider
+from .postgres import TaggedImage
 
 
 class FBUserPicture(BaseModel):
@@ -50,13 +51,22 @@ class UploadImageResponse(BaseModel):
     tags: List[str] = []
 
 
-class FindImageResponse(BaseModel):
+class QueryImageResponse(BaseModel):
     id: UUID
     name: str
     created_at: datetime
     uploaded_by: int
     url: AnyHttpUrl
     tags: List[str] = []
+
+    @classmethod
+    def from_tagged_image(cls, img: TaggedImage):
+        return cls(**img.image.dict(), tags=img.tag_names)
+
+
+class SearchImagesResponse(BaseModel):
+    data: List[QueryImageResponse]
+    next: str = ""
 
 
 class AddTagsRequest(BaseModel):

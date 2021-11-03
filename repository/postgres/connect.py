@@ -144,11 +144,11 @@ class Postgres:
         records = []
 
         if not previous_id:
-            query_params = (tag_param, limit, from_date, to_date)
-            records = await self.q.SEARCH_TAGGED_IMAGES(*query_params)  # type: ignore
+            params = (tag_param, limit, from_date, to_date)
+            records = await self.q.SEARCH_TAGGED_IMAGES(*params)  # type: ignore
         else:
-            query_params = (tag_param, limit, from_date, to_date, previous_id)
-            records = await self.q.SEARCH_TAGGED_IMAGES_WITH_PAGE(*query_params)  # type: ignore
+            params = (tag_param, limit, from_date, to_date, previous_id)
+            records = await self.q.SEARCH_TAGGED_IMAGES_WITH_PAGE(*params)  # type: ignore
 
         result = []
 
