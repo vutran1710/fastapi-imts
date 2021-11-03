@@ -79,14 +79,6 @@ INSERT INTO tagged (tag, image, created_at)
 RETURNING *
 """
 
-GET_IMAGE_TAGS = """
-WITH items (tag) AS (SELECT tag FROM tagged WHERE image = $1)
-SELECT name
-FROM tags
-RIGHT JOIN items
-ON tags.id = items.tag
-"""
-
 SEARCH_TAGGED_IMAGES = """
 WITH tag_items AS (
         SELECT id, name

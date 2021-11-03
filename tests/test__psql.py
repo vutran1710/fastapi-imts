@@ -202,12 +202,6 @@ async def test_save_and_get_tagged_image(setup_pg):
     assert isinstance(image, TaggedImage)
     assert len(image.tags) == len(tags)
 
-    tags = await pg.get_image_tags(image.image.id)
-    log.debug(tags)
-    assert tags and len(tags) == 3
-    for t in tags:
-        assert isinstance(t, str)
-
     after_insert = await pg.c.fetchval("SELECT COUNT(*) FROM tagged")
 
     assert after_insert == before_insert + len(tags)

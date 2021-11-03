@@ -128,10 +128,6 @@ class Postgres:
         await self.q.INSERT_TAGGED_IMAGE(data)  # type: ignore
         return TaggedImage(image=image, tags=saved_tags, created_at=image.created_at)
 
-    async def get_image_tags(self, image_id: Union[str, UUID]) -> List[str]:
-        records = await self.q.GET_IMAGE_TAGS(image_id)  # type: ignore
-        return [r["name"] for r in records]
-
     async def search_image_by_tags(
         self,
         tags: List[str],
@@ -144,11 +140,11 @@ class Postgres:
         records = []
 
         if not previous_id:
-            params = (tag_param, limit, from_date, to_date)
-            records = await self.q.SEARCH_TAGGED_IMAGES(*params)  # type: ignore
+            no_paging = (tag_param, limit, from_date, to_date)
+            records = await self.q.SEARCH_TAGGED_IMAGES(*no_paging)  # type: ignore
         else:
-            params = (tag_param, limit, from_date, to_date, previous_id)
-            records = await self.q.SEARCH_TAGGED_IMAGES_WITH_PAGE(*params)  # type: ignore
+            paging = (tag_param, limit, from_date, to_date, previous_id)
+            records = await self.q.SEARCH_TAGGED_IMAGES_WITH_PAGE(*paging)  # type: ignore
 
         result = []
 
