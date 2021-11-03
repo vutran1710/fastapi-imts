@@ -84,9 +84,9 @@ The app is made to storing/searching images with relevant tags.
 #### Tagged
 | COLUMN_NAME | COLUMN_TYPE | COLUMN_DEFAULT | IS_NULLABLE | COLUMN_KEY         | EXTRA/CONSTRAINT | COLUMN_COMMENT                                                          |
 |-------------|-------------|----------------|-------------|--------------------|------------------|-------------------------------------------------------------------------|
-| tag         | integer     | NULL           | NO          | FOREIGN, COMPOSITE |                  | Ref to Tags(id) table                                                   |
-| image       | uuid4       | NULL           | NO          | FOREIGN, COMPOSITE |                  | Ref to Images(id) table                                                 |
-| created_at  | timestamp   | NOW            | NO          |                    |                  | upload time, same as image's created_at, to help boost find-image query |
+| tag         | integer     | NULL           | NO          | FOREIGN, COMPOSITE | INDEXED          | Ref to Tags(id) table                                                   |
+| image       | uuid4       | NULL           | NO          | FOREIGN, COMPOSITE | INDEXED          | Ref to Images(id) table                                                 |
+| created_at  | timestamp   | NOW            | NO          |                    | INDEXED          | upload time, same as image's created_at, to help boost find-image query |
 
 
 - Refer to **Pydantic Model** in *model/postgres.py*
@@ -119,10 +119,10 @@ User registration and authentication with both **email/password** or using socia
 
 Image upload, fetching, searching
 
-| Prefix   | Endpoint | Method | Params                                      | Authenticated | Data                  | Description                                 |
-|----------|----------|--------|---------------------------------------------|---------------|-----------------------|---------------------------------------------|
-| v1/image |          | POST   | NO                                          | YES           | FormData[image, tags] | Upload image file, and tags                 |
-|          | /find    | GET    | image_id, limit, offset, from_time, to_time | YES           |                       | Get a single image or fetch multiple images |
+| Prefix   | Endpoint   | Method | Params                             | Authenticated | Data                  | Description                                 |
+|----------|------------|--------|------------------------------------|---------------|-----------------------|---------------------------------------------|
+| v1/image | /find_one  | POST   | id                                 | YES           | FormData[image, tags] | Upload image file, and tags                 |
+|          | /find_many | GET    | limit, from_time, to_time, prev_id | YES           |                       | Get a single image or fetch multiple images |
 
 
 
