@@ -48,7 +48,7 @@ def validate_google_user(idtoken: str, email: str) -> bool:
 def validate_image_file(filename: str):
     """Only accept file name for images of type PNG / JPG / JPEG"""
     name, ext = filename.lower().split(".")
-    valid_extensions = ("png", "jpg", "jpeg")
+    valid_extensions = ("png", "jpg", "jpeg", "tiff", "bmp", "gif")
     return name and ext in valid_extensions
 
 
