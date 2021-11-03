@@ -1,5 +1,5 @@
-from datetime import date, datetime
-from typing import List, Optional
+from datetime import datetime, timedelta
+from urllib.parse import urlencode
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
@@ -8,50 +8,9 @@ from dependencies import auth_guard, get_minio, get_pg
 from libs import (ImageException, fix_tags, make_storage_key,
                   validate_image_file)
 from model.auth import AuthenticatedUser
-from model.http import FindImageResponse, UploadImageResponse
-from model.postgres import Image, TaggedImage
+from model.http import (QueryImageResponse, SearchImagesResponse,
+                        UploadImageResponse)
 from repository import Minio, Postgres
-
-
-async def find_image_by_id(pg: Postgres, minio: Minio, image_id: UUID):
-    image = await pg.get_image(image_id)
-
-    if not image:
-        raise ImageException.INVALID_IMAGE_ID
-
-    tags = await pg.get_image_tags(image.id)
-    url = minio.get_image(image.storage_key)
-
-    return FindImageResponse(**image.dict(), url=url, tags=tags)
-
-
-async def find_images_by_tags_datetime(
-    tags: List[str],
-    from_date: date,
-    to_date: date,
-    limit: int,
-    offset: int,
-    pg: Postgres,
-    minio: Minio,
-) -> List[FindImageResponse]:
-    images = await pg.search_image_by_tags(
-        tags,
-        limit=limit,
-        offset=offset,
-        from_date=from_date,
-        to_date=to_date,
-    )
-
-    result = []
-
-    for img in images:
-        url = minio.get_image(img.image.storage_key)
-        tag_names = [t.name for t in img.tags]
-        resp = FindImageResponse(**img.image.dict(), url=url, tags=tag_names)
-        result.append(resp)
-
-    return result
-
 
 router = APIRouter()
 
@@ -65,7 +24,6 @@ async def upload_image(
     pg: Postgres = Depends(get_pg),
 ):
     """
-    Upload Image
     - Maximum file size guard shall be handled by web-server ie  nginx or traefik
     """
     valid = validate_image_file(image.filename)
@@ -78,55 +36,77 @@ async def upload_image(
 
     fixed_tags = fix_tags(tags)
 
-    if not fix_tags:
-        saved_image: Image = await pg.save_image(
-            image.filename, storage_key, user.user_id
-        )
-        return UploadImageResponse(
-            id=saved_image.id,
-            name=image.filename,
-            uploaded_by=saved_image.uploaded_by,
-            created_at=saved_image.created_at,
-        )
-
-    tagged_image: TaggedImage = await pg.save_tagged_image(
+    tagged_image = await pg.save_tagged_image(
         image.filename, storage_key, user.user_id, fixed_tags
     )
-    return UploadImageResponse(
-        id=tagged_image.image.id,
-        name=image.filename,
-        uploaded_by=tagged_image.image.uploaded_by,
-        created_at=tagged_image.image.created_at,
-        tags=fixed_tags,
-    )
+
+    return UploadImageResponse(**tagged_image.image.dict(), tags=fixed_tags)
 
 
-@router.get("/find", response_model=List[FindImageResponse])
-async def find_images(
-    image_id: Optional[UUID] = None,
-    tags: Optional[str] = None,
-    from_date: date = datetime.fromtimestamp(0).date(),
-    to_date: date = datetime.now().date(),
-    limit: int = 5,
-    offset: int = 0,
+@router.get("/find_one", response_model=QueryImageResponse)
+async def find_one_image(
+    id: UUID,
     user: AuthenticatedUser = Depends(auth_guard),
     minio: Minio = Depends(get_minio),
     pg: Postgres = Depends(get_pg),
 ):
-    """Get single image using image-id, or
-    search multiple images using tags & datetime
-    """
-    if image_id:
-        resp = await find_image_by_id(pg, minio, image_id)
-        return [resp]
+    image = await pg.get_image(id)
 
-    valid_tags = fix_tags(tags)
+    if not image:
+        raise ImageException.IMAGE_NOT_FOUND
 
-    if not valid_tags:
+    url = minio.get_image(image.image.storage_key)
+    return QueryImageResponse(**image.image.dict(), tags=image.tag_names, url=url)
+
+
+@router.get("/find_many", response_model=SearchImagesResponse)
+async def find_images(
+    tags: str,
+    limit: int = 5,
+    from_date: datetime = datetime.fromtimestamp(0),
+    to_date: datetime = datetime.now() + timedelta(minutes=1),
+    prev_id: UUID = None,
+    user: AuthenticatedUser = Depends(auth_guard),
+    minio: Minio = Depends(get_minio),
+    pg: Postgres = Depends(get_pg),
+):
+    fixed_tags = fix_tags(tags)
+
+    if not fixed_tags:
         return []
 
-    resp = await find_images_by_tags_datetime(
-        valid_tags, from_date, to_date, limit, offset, pg, minio
+    images = await pg.search_image_by_tags(
+        fixed_tags,
+        limit + 1,
+        from_date=from_date,
+        to_date=to_date,
+        previous_id=prev_id,
     )
 
-    return resp
+    has_next = len(images) == limit + 1
+    images = images[:-1] if has_next else images
+
+    data = []
+
+    for i in images:
+        img_tags = i.tag_names
+        img_info = i.image.dict()
+        url = minio.get_image(i.image.storage_key)
+        image = QueryImageResponse(**img_info, tags=img_tags, url=url)
+        data.append(image)
+
+    if not has_next:
+        return SearchImagesResponse(data=data)
+
+    to_date, prev_id = data[-1].created_at, data[-1].id
+
+    next_params = {
+        "tags": ",".join(fixed_tags),
+        "limit": limit,
+        "from_date": from_date,
+        "to_date": to_date,
+        "prev_id": prev_id,
+    }
+
+    next_link = urlencode(next_params)
+    return SearchImagesResponse(data=data, next=next_link)

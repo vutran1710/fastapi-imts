@@ -1,34 +1,23 @@
 """Testing authentication flow of App
 """
-from datetime import datetime, timezone
-from random import choice
-from uuid import uuid4
+from random import sample
+from urllib.parse import parse_qs
+from uuid import UUID
 
+from faker import Faker
 from logzero import logger as log
 
-from model.http import AuthResponse, FindImageResponse, UploadImageResponse
+from model.http import UploadImageResponse
 
 from .fixtures import API, pytestmark, setup  # noqa
 
+fake = Faker()
+Faker.seed(0)
+
 
 async def test_image_upload(setup):  # noqa
-    """Testing
-    - Upload image with tag via form-data, must be authenticated first
-    - Get image using image-key
-    - Search image
-    """
-    client, pg, minio, *_ = setup
+    client, auth = setup("app", "auth")
 
-    email, password = "image-uploader@vutr.io", "123123123"
-
-    # Sign-up with valid credential should succeed
-    response = client.post(
-        API.signup,
-        data={"username": email, "password": password},
-    )
-
-    data = response.json()
-    auth = AuthResponse(**data)
     headers = {"Authorization": f"Bearer {auth.access_token}"}
 
     # Load a test image
@@ -40,90 +29,165 @@ async def test_image_upload(setup):  # noqa
         image.close()
 
     image_name = "my_image.jpeg"
+
     files = {"image": (image_name, image_data, "multipart/form-data")}
 
-    # Upload image without tags
     response = client.post(API.upload_image, headers=headers, files=files)
 
-    log.info(response.text)
     assert response.status_code == 200
+
     resp = UploadImageResponse(**response.json())
     assert resp.tags == []
+    assert isinstance(resp.id, UUID)
+    assert resp.uploaded_by == auth.user_id
 
-    # Upload another image with same name should be fine, but the image id must be different
-    response = client.post(API.upload_image, headers=headers, files=files)
 
-    log.info(response.text)
-    assert response.status_code == 200
-    new_resp = UploadImageResponse(**response.json())
-    assert new_resp.name == resp.name
-    assert new_resp.id != resp.id
+async def test_upload_multi_image(setup):  # noqa
+    client, auth, headers = setup("app", "auth", "headers")
 
-    # Upload image with tags should be ok
-    tags = ["foo", "bar", "nono"]
-    data = {"tags": ",".join(tags)}
-    response = client.post(API.upload_image, headers=headers, data=data, files=files)
+    image_name = "my_image.jpeg"
 
-    log.info(response.text)
-    assert response.status_code == 200
-    tagged = UploadImageResponse(**response.json())
-    assert tagged.tags and len(tagged.tags) == 3
-
-    # Upload invalid file with invalid name
-    invalid_files = {"image": ("invalid-name", image_data, "multipart/form-data")}
-    response = client.post(API.upload_image, headers=headers, files=invalid_files)
-    assert response.status_code == 400
-
-    # Test find image by id
-    tags = ["foo", "bar", "nono"]
-    params = {"image_id": str(tagged.id)}
-    response = client.get(API.find_images, headers=headers, params=params)
-
-    assert response.status_code == 200
-    log.info(image)
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) == 1
-
-    image: FindImageResponse = FindImageResponse(**data[0])
-    assert image.id == tagged.id
-    assert image.name == image.name
-    assert image.uploaded_by == auth.user_id
-    assert image.tags and len(image.tags) == 3
-    assert image.url
-    assert image.created_at
-
-    # Test find invalid image using invalid id
-    params = {"image_id": "invalid-id"}
-    response = client.get(API.find_images, params=params, headers=headers)
-    assert response.status_code == 422
-
-    params = {"image_id": uuid4()}
-    response = client.get(API.find_images, params=params, headers=headers)
-    assert response.status_code == 404
-
-    # Upload multi images:
-    tags = ["foo", "bar", "nono", "hello", "world", "goodbye", "heaven"]
-
-    for tag in tags:
-        sample_tags = tag
-        data = {"tags": sample_tags}
-        response = client.post(
-            API.upload_image, headers=headers, data=data, files=files
-        )
-
-    # Find multi images using tags
-    params = {
-        "tags": "foo,bar,hello",
-        "limit": 3,
-        "from_date": str(datetime(2015, 10, 10).date()),
-        "to_date": str(datetime(2021, 12, 12).date()),
+    files = {
+        "image": (image_name, bytearray("", encoding="utf-8"), "multipart/form-data")
     }
-    response = client.get(API.find_images, headers=headers, params=params)
-    assert response.status_code == 200
-    data = response.json()
-    log.info(data)
 
-    assert len(data) == 3
-    for item in data:
-        assert FindImageResponse(**item)
+    # Upload multi images of same name should succeed
+    # but different image-ids returned
+    def upload():
+        resp = client.post(API.upload_image, headers=headers, files=files)
+        assert resp.status_code == 200
+        return resp.json()["id"]
+
+    ids = [upload() for _ in range(2)]
+    assert ids[0] != ids[1]
+
+
+async def test_upload_image_with_tags(setup):  # noqa
+    client, auth, headers = setup("app", "auth", "headers")
+
+    image_name = "my_image.jpeg"
+
+    files = {
+        "image": (image_name, bytearray("", encoding="utf-8"), "multipart/form-data"),
+    }
+
+    tags = fake.words(nb=10)
+
+    def upload():
+        tags_str = ",".join(sample(tags, 5))
+        resp = client.post(
+            API.upload_image,
+            headers=headers,
+            files=files,
+            data={"tags": tags_str},
+        )
+        assert resp.status_code == 200
+        data = resp.json()
+        log.info(data["tags"])
+        assert len(set(data["tags"])) == 5
+
+    assert [upload() for _ in range(5)]
+
+
+async def test_find_image_by_id(setup):  # noqa
+    client, auth, headers = setup("app", "auth", "headers")
+
+    tags = fake.words(nb=5)
+
+    def make_files():
+        name = fake.file_name(category="image")
+        data = bytearray("", encoding="utf-8")
+        return {"image": (name, data, "multipart/form-data")}
+
+    def upload():
+        tags_str = ",".join(sample(tags, 4))
+        file = make_files()
+        resp = client.post(
+            API.upload_image,
+            headers=headers,
+            files=file,
+            data={"tags": tags_str},
+        )
+        log.info(resp.text)
+        log.info(file)
+        assert resp.status_code == 200
+        image_id = resp.json()["id"]
+        return image_id
+
+    image_ids = [upload() for _ in range(10)]
+
+    log.info(image_ids)
+
+    resp = client.get(API.find_one_image, headers=headers, params={"id": image_ids[0]})
+
+    assert resp.status_code == 200
+    log.info(resp.json())
+
+    tags = resp.json()["tags"]
+    assert len(tags) == 4
+
+
+async def test_search_image(setup):  # noqa
+    client, auth, headers = setup("app", "auth", "headers")
+
+    tags = fake.words(nb=10)
+
+    def make_files():
+        name = fake.file_name(category="image")
+        data = bytearray("", encoding="utf-8")
+        return {"image": (name, data, "multipart/form-data")}
+
+    def upload():
+        tags_str = ",".join(sample(tags, 4))
+        file = make_files()
+        resp = client.post(
+            API.upload_image,
+            headers=headers,
+            files=file,
+            data={"tags": tags_str},
+        )
+        assert resp.status_code == 200
+        image_id = resp.json()["id"]
+        return image_id
+
+    [upload() for _ in range(10)]
+
+    found = client.get(
+        API.find_many_images,
+        headers=headers,
+        params={"tags": ",".join(tags), "limit": 10},
+    )
+
+    assert found.status_code == 200
+    found = found.json()
+
+    data = found["data"]
+    assert len(data) == 10
+
+    # With pagination
+    resp = client.get(
+        API.find_many_images,
+        headers=headers,
+        params={"tags": ",".join(tags), "limit": 5},
+    )
+
+    resp = resp.json()
+    next_link = resp["next"]
+    images = resp["data"]
+    assert len(images) == 5
+    assert next_link != ""
+
+    log.warn(images)
+
+    params = parse_qs(next_link)
+    log.warn(params)
+    resp = client.get(
+        API.find_many_images + "?" + next_link,
+        headers=headers,
+    )
+
+    resp = resp.json()
+    next_link = resp["next"]
+    images = resp["data"]
+    assert len(images) == 5
+    assert next_link == ""

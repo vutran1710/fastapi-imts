@@ -1,11 +1,13 @@
 """Unit testing the custom Postgres module
 """
 from datetime import datetime
+from os import environ
 from random import sample
 from uuid import UUID, uuid4
 
 import pytest
 import pytest_asyncio  # noqa
+import pytz
 from asyncpg import Connection
 from faker import Faker
 from logzero import logger as log
@@ -17,7 +19,7 @@ from settings import settings
 
 fake = Faker()
 Faker.seed(0)
-
+tz = pytz.timezone(environ["TZ"])
 pytestmark = pytest.mark.asyncio
 
 
@@ -146,17 +148,17 @@ async def test_save_and_get_image(setup_pg):
     assert image.uploaded_by == user.id
     assert image.storage_key == storage_key
 
+    log.info(image)
+
     # Retrieve image by image-key only
-    get_image: Image = await pg.get_image(image.id)
-    assert isinstance(get_image, Image)
-
-    assert get_image.id == image.id
-    assert get_image.storage_key == image.storage_key
-    assert get_image.uploaded_by == user.id
-    assert get_image.created_at
-
-    non_exist = await pg.get_image("non-exist-image-key")
-    assert non_exist is None
+    get_image = await pg.get_image(image.id)
+    assert isinstance(get_image, TaggedImage)
+    image = get_image.image
+    assert image.id == image.id
+    assert image.storage_key == image.storage_key
+    assert image.uploaded_by == user.id
+    assert image.created_at
+    assert get_image.tags == []
 
     non_exist = await pg.get_image(uuid4())
     assert non_exist is None
@@ -199,7 +201,6 @@ async def test_save_and_get_tagged_image(setup_pg):
 
     assert isinstance(image, TaggedImage)
     assert len(image.tags) == len(tags)
-    assert image.created_at == image.image.created_at
 
     tags = await pg.get_image_tags(image.image.id)
     log.debug(tags)
@@ -216,68 +217,166 @@ async def test_search_image(setup_pg):
     global fake
     pg = setup_pg
 
-    tags = ["foo", "bar", "hello", "world", "goodbye", "wall"]
+    tags = fake.words(nb=100)
+    tags_to_search = tags[:2]
 
-    for _ in range(100):
-        image_name = fake.file_name(category="image")
-        storage_key = make_storage_key(image_name)
-        uploader = None
-        image_tags = sample(tags, 2)
-        image = await pg.save_tagged_image(
-            image_name, storage_key, uploader, image_tags
-        )
+    cnt = 0
+    image_cnt = 50
 
-        random_created_time = fake.date_time()
-        assert isinstance(random_created_time, datetime)
-        await pg.c.fetch(
-            "UPDATE images SET created_at = $1 WHERE id = $2",
-            random_created_time,
-            image.image.id,
-        )
-        await pg.c.fetch(
-            "UPDATE tagged SET created_at = $1 WHERE image = $2",
-            random_created_time,
-            image.image.id,
-        )
+    for _ in range(image_cnt):
+        name = fake.file_name(category="image")
+        key = make_storage_key(name)
+        image_tags = sample(tags, 3)
+
+        if any(t in image_tags for t in tags_to_search):
+            cnt += 1
+
+        await pg.save_tagged_image(name, key, None, image_tags)
 
     count = await pg.c.fetchval("SELECT COUNT(*) FROM images")
-    assert count == 100
+    assert count == image_cnt
 
     # Search image by tags
-    tags_to_search = ["foo", "bar"]
-    from_date, to_date = datetime(2000, 10, 10), datetime(2018, 10, 10)
-    search_images = await pg.search_image_by_tags(
+    search_images = await pg.search_image_by_tags(tags_to_search, image_cnt)
+    log.info(
+        "Search tags = %s, Found %s images, expected %s",
         tags_to_search,
-        limit=3,
-        from_date=from_date,
-        to_date=to_date,
+        len(search_images),
+        cnt,
     )
 
-    # assert len(search_images) == 3
+    assert len(search_images) == cnt
 
+    # Image returned has at least one tag in the searching tag
     for img in search_images:
-        assert isinstance(img, TaggedImage)
         image_tags = [t.name for t in img.tags]
-        # Image returned has at least one tag in the searching tag
-        assert len(set(image_tags + tags_to_search)) < (
-            len(image_tags) + len(tags_to_search)
+        assert any(t in tags_to_search for t in image_tags)
+
+
+async def test_search_with_datetime(setup_pg):
+    global fake, tz
+    pg = setup_pg
+
+    tags = fake.words(nb=100)
+    tags_to_search = []
+
+    cnt = 0
+    image_cnt = 29
+
+    for day in range(image_cnt):
+        name = fake.file_name(category="image")
+        key = make_storage_key(name)
+        image_tags = sample(tags, 3)
+
+        img = await pg.save_tagged_image(name, key, None, image_tags)
+
+        created_at = datetime(2021, 11, day + 1).replace(tzinfo=tz)
+
+        # Check tags for image with created_at within 2021/11/1 ~ 2021/11/10
+        if day < 10:
+            tags_to_search.append(image_tags[0])
+            cnt += 1
+
+        # Sync created_at for 2 tables images & tagged
+        await pg.c.fetch(
+            "UPDATE images SET created_at = $1 WHERE id = $2",
+            created_at,
+            img.image.id,
         )
-        assert from_date <= img.created_at <= to_date
 
-    last_row_id = search_images[-1].image.id
-    log.info("> Limit=3, Offset=0 ==> last row %s", last_row_id)
+        await pg.c.fetch(
+            "UPDATE tagged SET created_at = $1 WHERE image = $2",
+            created_at,
+            img.image.id,
+        )
 
-    # Pagination with offset
+    from_date = datetime(2021, 11, 1).replace(tzinfo=tz)
+    to_date = datetime(2021, 11, 10).replace(tzinfo=tz)
+
     search_images = await pg.search_image_by_tags(
         tags_to_search,
-        limit=3,
-        offset=2,
+        image_cnt,
         from_date=from_date,
         to_date=to_date,
     )
 
-    first_row_id = search_images[0].image.id
-    log.info("> Limit=3, Offset=2 ==> first row %s", first_row_id)
+    for i in search_images:
+        assert from_date <= i.image.created_at <= to_date
 
-    # Overlapping
-    assert last_row_id == first_row_id
+    assert len(search_images) == cnt
+
+
+async def test_search_with_pagination(setup_pg):
+    global fake, tz
+    pg = setup_pg
+
+    tags = fake.words(nb=100)
+    tags_to_search = []
+
+    cnt = 0
+    image_cnt = 9
+
+    async def insert(day):
+        nonlocal tags, cnt
+        name = fake.file_name(category="image")
+        key = make_storage_key(name)
+        image_tags = sample(tags, 3)
+        img = await pg.save_tagged_image(name, key, None, image_tags)
+        created_at = datetime(2021, 10, day).replace(tzinfo=tz)
+
+        if day < 10:
+            tags_to_search.append(image_tags[0])
+            cnt += 1
+
+        await pg.c.fetch(
+            "UPDATE images SET created_at = $1 WHERE id = $2",
+            created_at,
+            img.image.id,
+        )
+
+        await pg.c.fetch(
+            "UPDATE tagged SET created_at = $1 WHERE image = $2",
+            created_at,
+            img.image.id,
+        )
+
+    for day in range(image_cnt):
+        await insert(day + 1)
+
+    all = await pg.search_image_by_tags(tags_to_search, 50)
+
+    for i in all:
+        log.warn("ALL >> %s  - t = %s", i.image.id, i.image.created_at)
+
+    limit = 3
+    images = await pg.search_image_by_tags(tags_to_search, limit + 1)
+
+    log.warn("=========================================")
+    for i in images:
+        log.warn(">> %s  - t = %s", i.image.id, i.image.created_at)
+
+    assert len(images) == limit + 1
+    overlap_img = images[-1].image
+    log.info(
+        "Overlapping image = %s, time = %s", overlap_img.id, overlap_img.created_at
+    )
+
+    # Insert some more image on top and check if the pagination is still correct
+    for _ in range(5):
+        await insert(31)
+
+    images = await pg.search_image_by_tags(
+        tags_to_search,
+        limit,
+        to_date=images[-2].image.created_at,
+        previous_id=images[-2].image.id,
+    )
+    log.warn("=========================================")
+    for i in images:
+        log.warn(">> %s  - t = %s", i.image.id, i.image.created_at)
+
+    first_img = images[0].image
+
+    log.info("first found image = %s, time = %s", first_img.id, first_img.created_at)
+
+    assert first_img.id == overlap_img.id

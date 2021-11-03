@@ -35,4 +35,7 @@ class Tag(BaseModel):
 class TaggedImage(BaseModel):
     image: Image
     tags: List[Tag]
-    created_at: datetime
+
+    @property
+    def tag_names(self):
+        return [t.name for t in self.tags]

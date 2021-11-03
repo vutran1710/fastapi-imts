@@ -10,7 +10,7 @@ async def test_add_tags(setup):  # noqa
     - Add tags
     - No need get
     """
-    client, pg, *_ = setup
+    client, pg = setup("app", "pg")
 
     email, password = "image-uploader@vutr.io", "123123123"
 

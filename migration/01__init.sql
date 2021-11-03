@@ -1,4 +1,5 @@
 -- Generated with dbdiagram.io
+SET TIMEZONE=+7;
 
 CREATE TYPE "AuthProviders" AS ENUM (
   'facebook',
@@ -8,11 +9,11 @@ CREATE TYPE "AuthProviders" AS ENUM (
 
 CREATE TABLE "users" (
   "id" SERIAL PRIMARY KEY,
-  "created_at" timestamp DEFAULT current_timestamp,
+  "created_at" timestamptz DEFAULT current_timestamp,
   "email" varchar UNIQUE NOT NULL,
   "password" varchar,
   "token" varchar,
-  "expire_at" timestamp,
+  "expire_at" timestamptz,
   "provider" "AuthProviders"
 );
 
@@ -26,7 +27,7 @@ CREATE TABLE "images" (
   "id" uuid PRIMARY KEY,
   "name" varchar NOT NULL,
   "storage_key" varchar UNIQUE NOT NULL,
-  "created_at" timestamp DEFAULT current_timestamp,
+  "created_at" timestamptz DEFAULT current_timestamp,
   "uploaded_by" int NULL
 );
 
@@ -38,7 +39,7 @@ CREATE TABLE "tags" (
 CREATE TABLE "tagged" (
   "tag" int,
   "image" uuid,
-  "created_at" timestamp,
+  "created_at" timestamptz,
   PRIMARY KEY ("tag", "image")
 );
 

@@ -12,7 +12,8 @@ from .fixtures import pytestmark, setup  # noqa
 
 
 async def test_initialize(setup):  # noqa
-    mc = setup[3]
+    mc = setup("mc")
+
     assert (await mc.healthz()) is True
     user = AuthenticatedUser(
         name="messi",

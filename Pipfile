@@ -18,6 +18,7 @@ python-multipart = "*"
 google-api-python-client = "*"
 passlib = "*"
 motor = "*"
+pytz = "*"
 
 [dev-packages]
 black = "*"
@@ -29,6 +30,7 @@ pytest = "*"
 pytest-asyncio = "*"
 pytest-cov = "*"
 faker = "*"
+types-pytz = "*"
 
 [requires]
 python_version = "3.9"

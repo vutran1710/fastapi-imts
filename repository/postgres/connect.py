@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional, Union
 from uuid import UUID, uuid4
 
 from asyncpg import Connection, connect
+from logzero import logger as log  # noqa
 
 import repository.postgres.queries as PsqlQueries
-from libs import convert_string_to_uuid
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User
 from settings import Settings
@@ -99,13 +99,16 @@ class Postgres:
         record = await self.q.INSERT_NEW_IMAGE(*args, method="fetchrow")  # type: ignore
         return Image(**record)
 
-    async def get_image(self, image_id: Union[str, UUID]) -> Optional[Image]:
-        if isinstance(image_id, str) and not convert_string_to_uuid(image_id):
+    async def get_image(self, id: UUID) -> Optional[TaggedImage]:
+        record = await self.q.FIND_IMAGE_BY_ID(id, method="fetchrow")  # type: ignore
+
+        if not record:
             return None
 
-        image_id = str(image_id)
-        records = await self.q.FIND_IMAGE_BY_ID(image_id)  # type: ignore
-        return Image(**records[0]) if records else None
+        image = Image(**record)
+        tags = [Tag(name=t) for t in (record["tags"] or "").split(",") if t]
+
+        return TaggedImage(image=image, tags=tags)
 
     async def save_tags(self, tags: List[str]) -> List[Tag]:
         values = [(None, t) for t in tags]
@@ -119,16 +122,10 @@ class Postgres:
         uploader: int,
         tags: List[str],
     ) -> TaggedImage:
-        image = await self.get_image(storage_key)
-
-        if not image:
-            image = await self.save_image(image_name, storage_key, uploader)
-
-        saved_tags = await self.save_tags(tags)
+        image = await self.save_image(image_name, storage_key, uploader)
+        saved_tags = await self.save_tags(tags) if tags else []
         data = [(tag.id, image.id, image.created_at) for tag in saved_tags]
-
         await self.q.INSERT_TAGGED_IMAGE(data)  # type: ignore
-
         return TaggedImage(image=image, tags=saved_tags, created_at=image.created_at)
 
     async def get_image_tags(self, image_id: Union[str, UUID]) -> List[str]:
@@ -138,14 +135,20 @@ class Postgres:
     async def search_image_by_tags(
         self,
         tags: List[str],
-        limit: int = 5,
-        offset: int = 0,
+        limit: int,
+        previous_id: UUID = None,
         from_date=datetime.fromtimestamp(0),
-        to_date=datetime.now(),
+        to_date=datetime.now() + timedelta(minutes=1),
     ) -> List[TaggedImage]:
         tag_param = [(None, t) for t in tags]
-        query_params = (tag_param, limit, offset, from_date, to_date)
-        records = await self.q.SEARCH_TAGGED_IMAGES(*query_params)  # type: ignore
+        records = []
+
+        if not previous_id:
+            params = (tag_param, limit, from_date, to_date)
+            records = await self.q.SEARCH_TAGGED_IMAGES(*params)  # type: ignore
+        else:
+            params = (tag_param, limit, from_date, to_date, previous_id)
+            records = await self.q.SEARCH_TAGGED_IMAGES_WITH_PAGE(*params)  # type: ignore
 
         result = []
 
