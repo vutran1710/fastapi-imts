@@ -119,10 +119,12 @@ User registration and authentication with both **email/password** or using socia
 
 Image upload, fetching, searching
 
-| Prefix   | Endpoint   | Method | Params                             | Authenticated | Data                  | Description                                 |
-|----------|------------|--------|------------------------------------|---------------|-----------------------|---------------------------------------------|
-| v1/image | /find_one  | POST   | id                                 | YES           | FormData[image, tags] | Upload image file, and tags                 |
-|          | /find_many | GET    | limit, from_time, to_time, prev_id | YES           |                       | Get a single image or fetch multiple images |
+| Prefix   | Endpoint   | Method | Params                             | Authenticated | Data                  | Description                 |
+|----------|------------|--------|------------------------------------|---------------|-----------------------|-----------------------------|
+| v1/image |            | POST   |                                    | YES           | FormData[image, tags] | Upload image file, and tags |
+|          | /find_one  | GET    | id                                 | YES           |                       | Get a single image          |
+|          | /find_many | GET    | limit, from_time, to_time, prev_id | YES           |                       | Search multiple images      |
+|          |            |        |                                    |               |                       |                             |
 
 
 
@@ -212,6 +214,7 @@ TOTAL                              638     50    92%
 - [x] Stress-tested and optimized image-search query
 - [x] Create *Index* on uploaded_by of table **Images** to support searching images by user
 - [x] Refactor Query Response following *snowflake* pattern to provide better pagination
+- [ ] Create a CreateMockData class for better testing experience
 - [ ] Provide API for adding tags for existing image
 - [ ] Provide *migration* script
 - [ ] Provide *pytest-postgresql* for better testing
