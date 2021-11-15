@@ -1,11 +1,10 @@
 from datetime import datetime, timedelta
-from typing import List, Optional, Union
+from typing import List, Optional
 from uuid import UUID, uuid4
 
+import repository.postgres.queries as PsqlQueries
 from asyncpg import Connection, connect
 from logzero import logger as log  # noqa
-
-import repository.postgres.queries as PsqlQueries
 from model.enums import Provider
 from model.postgres import Image, Tag, TaggedImage, User
 from settings import Settings

@@ -42,7 +42,7 @@ flake = "flake8 ."
 type = "mypy ."
 sort = "isort ."
 test = "pytest tests --maxfail=1 -v -s --cov=. --cov-report term"
-exp = "pytest tests/experiment/test_all.py -v -s"
+exp = "pytest tests/mockery.py -v -s"
 
 [pipenv]
 allow_prereleases = true

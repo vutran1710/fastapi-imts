@@ -2,9 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import AnyHttpUrl, BaseModel
-
 from libs import fix_tags
+from pydantic import AnyHttpUrl, BaseModel
 
 from .enums import Provider
 from .postgres import TaggedImage
@@ -55,7 +54,7 @@ class QueryImageResponse(BaseModel):
     id: UUID
     name: str
     created_at: datetime
-    uploaded_by: int
+    uploaded_by: Optional[int]
     url: AnyHttpUrl
     tags: List[str] = []
 
